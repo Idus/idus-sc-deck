@@ -103,10 +103,10 @@ const stamp = () => { const d = new Date(), p = (n) => String(n).padStart(2, "0"
 // overwritten). A pristine copy is kept in stateDir. -> { ok, out }
 async function update(channelDir, { stateDir } = {}) {
   const out = [];
-  if (!channelDir || !fs.existsSync(channelDir)) return { ok: false, out: "game folder not found — set it in the key's settings" };
+  if (!channelDir || !fs.existsSync(channelDir)) return { ok: false, short: "no game folder", out: "game folder not found — set it in the key's settings" };
   let rel;
   try { rel = JSON.parse((await download(API, "application/vnd.github+json")).toString("utf8")); }
-  catch (e) { return { ok: false, out: `could not reach GitHub: ${e.message} (60 checks per hour)` }; }
+  catch (e) { return { ok: false, short: "GitHub offline", out: `could not reach GitHub: ${e.message} (60 checks per hour)` }; }
   out.push(`latest release: ${rel.tag_name || "?"}`);
   let data = null;
   try {
@@ -119,16 +119,16 @@ async function update(channelDir, { stateDir } = {}) {
       if (!src) return { ok: false, out: "the release has neither global.ini nor a zip" };
       data = globalIniFromZip(await download(src, "application/octet-stream"));
     }
-  } catch (e) { return { ok: false, out: `download failed: ${e.message}` }; }
-  if (!data || data.length < 100000) return { ok: false, out: "no usable global.ini in the release" };
+  } catch (e) { return { ok: false, short: "download failed", out: `download failed: ${e.message}` }; }
+  if (!data || data.length < 100000) return { ok: false, short: "bad release", out: "no usable global.ini in the release" };
 
   const eng = ifind(channelDir, "data", "Localization", "english") || path.join(channelDir, "data", "Localization", "english");
-  try { fs.mkdirSync(eng, { recursive: true }); } catch (e) { return { ok: false, out: `cannot create ${eng}: ${e.message}` }; }
+  try { fs.mkdirSync(eng, { recursive: true }); } catch (e) { return { ok: false, short: "cannot write", out: `cannot create ${eng}: ${e.message}` }; }
   const target = ifind(eng, "global.ini") || path.join(eng, "global.ini");
   try {
     if (fs.existsSync(target)) { const bak = path.join(eng, `global.ini.BAK-${stamp()}`); fs.renameSync(target, bak); out.push(`old file kept as ${path.basename(bak)}`); }
     fs.writeFileSync(target, data);
-  } catch (e) { return { ok: false, out: `cannot write ${target}: ${e.message}` }; }
+  } catch (e) { return { ok: false, short: "cannot write", out: `cannot write ${target}: ${e.message}` }; }
   out.push(`installed ${target} (${Math.round(data.length / 1024)} KB)`);
 
   const cfg = ifind(channelDir, "user.cfg") || path.join(channelDir, "user.cfg");

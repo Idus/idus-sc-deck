@@ -18,7 +18,20 @@ const TASKKILL = path.join(SYS32, "taskkill.exe");
 const POWERSHELL = path.join(SYS32, "WindowsPowerShell", "v1.0", "powershell.exe");
 const LOCAL = process.env.LOCALAPPDATA || path.join(os.homedir(), "AppData", "Local");
 const ROAMING = process.env.APPDATA || path.join(os.homedir(), "AppData", "Roaming");
-const BACKUP_DIR = process.env.SC_BACKUP_DIR || path.join(os.homedir(), "Documents", "SC-backups");
+// Documents can live in OneDrive (or be guarded by Controlled folder access): ask Windows where it
+// is, and fall back to %LOCALAPPDATA%\Idus SC Deck\SC-backups when it cannot be written.
+function documentsDir() {
+  try {
+    const out = execFileSync(path.join(SYS32, "reg.exe"), ["query", "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders", "/v", "Personal"],
+      { timeout: 5000, windowsHide: true }).toString();
+    const m = /Personal\s+REG_(?:EXPAND_)?SZ\s+(.+)/i.exec(out);
+    if (m) return m[1].trim().replace(/%([^%]+)%/g, (_, v) => process.env[v] || process.env[v.toUpperCase()] || `%${v}%`);
+  } catch { /* use the default */ }
+  return path.join(os.homedir(), "Documents");
+}
+const BACKUP_DIRS = process.env.SC_BACKUP_DIR ? [process.env.SC_BACKUP_DIR]
+  : [path.join(documentsDir(), "SC-backups"), path.join(STATE_DIR, "SC-backups")];
+const BACKUP_DIR = BACKUP_DIRS[0];
 const RSI = ["Roberts Space Industries", "StarCitizen"];
 const HIDE = { windowsHide: true };
 
@@ -115,7 +128,7 @@ function launch({ command, prefix } = {}) {
   if (command && command.trim()) child = spawn(process.env.ComSpec || "cmd.exe", ["/d", "/s", "/c", command], { ...opts, windowsHide: true });
   else {
     const exe = launcherExe(prefix);
-    if (!exe) return { ok: false, why: "RSI Launcher.exe not found — set the game folder in the key's settings" };
+    if (!exe) return { ok: false, why: "RSI Launcher.exe not found — set the game folder in the key's settings", short: "no launcher" };
     child = spawn(exe, [], { ...opts, cwd: path.dirname(exe) });
   }
   child.on("error", () => {});
@@ -132,6 +145,16 @@ const stamp = () => { const d = new Date(), p = (n) => String(n).padStart(2, "0"
 const sizeOf = (p) => { let n = 0; try { for (const e of fs.readdirSync(p, { withFileTypes: true })) n += e.isDirectory() ? sizeOf(path.join(p, e.name)) : fs.statSync(path.join(p, e.name)).size; } catch { /* gone */ } return n; };
 const mb = (n) => `${(n / 1048576).toFixed(n > 1048576 * 10 ? 0 : 1)} MB`;
 const keep = (src) => !/[\\/]shaders([\\/]|$)/i.test(src) && !/\.log$/i.test(src);
+// Copy a folder; a file the game holds open is skipped instead of stopping everything.
+function copyTree(src, dst, stats) {
+  fs.mkdirSync(dst, { recursive: true });
+  for (const e of fs.readdirSync(src, { withFileTypes: true })) {
+    const from = path.join(src, e.name), to = path.join(dst, e.name);
+    if (!keep(from)) continue;
+    if (e.isDirectory()) copyTree(from, to, stats);
+    else { try { fs.copyFileSync(from, to); stats.files++; } catch (err) { stats.skipped.push(`${e.name} (${err.code || err.message})`); } }
+  }
+}
 
 async function kill() {
   const sc = await taskkill("StarCitizen.exe");
@@ -143,36 +166,48 @@ async function restart(prefix) {
   await kill();
   await new Promise((r) => setTimeout(r, 1500));
   const r = launch({ prefix });
-  return r.ok ? { ok: true, out: "RSI Launcher started again" } : { ok: false, out: r.why };
+  return r.ok ? { ok: true, out: "RSI Launcher started again" } : { ok: false, short: r.short, out: r.why };
 }
 
 // Keybinds and settings: <channel>\user (without shader caches and logs) and USER.cfg of every
-// channel, copied to Documents\SC-backups\sc-backup-<date>\<channel>\…
+// channel, copied to <Documents>\SC-backups\sc-backup-<date>\<channel>\… (or the fallback folder)
 function backup(prefix, { quiet } = {}) {
   const root = detectPrefix(prefix);
-  const dest = path.join(BACKUP_DIR, `sc-backup-${stamp()}`);
-  let items = 0;
-  for (const ch of CHANNELS) {
-    const dir = ifind(root, ch);
-    if (!dir) continue;
-    const user = ifind(dir, "user"), cfg = ifind(dir, "user.cfg");
-    if (user) { fs.cpSync(user, path.join(dest, ch, "user"), { recursive: true, filter: keep }); items++; }
-    if (cfg) { fs.mkdirSync(path.join(dest, ch), { recursive: true }); fs.copyFileSync(cfg, path.join(dest, ch, "USER.cfg")); items++; }
+  const chans = CHANNELS.map((ch) => ifind(root, ch)).filter(Boolean);
+  if (!chans.length) return { ok: false, short: "no game folder", out: `no LIVE/PTU folder in ${root} — set the game folder in the key's settings` };
+  let lastErr = "";
+  for (const base of BACKUP_DIRS) {
+    const dest = path.join(base, `sc-backup-${stamp()}`);
+    try { fs.mkdirSync(dest, { recursive: true }); } catch (e) { lastErr = `${base}: ${e.code || e.message}`; continue; }
+    const stats = { files: 0, skipped: [] };
+    try {
+      for (const dir of chans) {
+        const ch = path.basename(dir).toUpperCase();
+        const user = ifind(dir, "user"), cfg = ifind(dir, "user.cfg");
+        if (user) copyTree(user, path.join(dest, ch, "user"), stats);
+        if (cfg) { fs.mkdirSync(path.join(dest, ch), { recursive: true }); fs.copyFileSync(cfg, path.join(dest, ch, "USER.cfg")); stats.files++; }
+      }
+    } catch (e) { lastErr = `${dest}: ${e.code || e.message}`; fs.rmSync(dest, { recursive: true, force: true }); continue; }
+    if (!stats.files) { fs.rmSync(dest, { recursive: true, force: true }); return { ok: false, short: "nothing to save", out: `no user folder or USER.cfg in ${root}` }; }
+    const note = stats.skipped.length ? ` · skipped ${stats.skipped.length} locked: ${stats.skipped.slice(0, 3).join(", ")}` : "";
+    return { ok: true, dest, out: quiet ? dest : `backed up ${stats.files} files → ${dest}${note}` };
   }
-  if (!items) return { ok: false, out: `nothing to back up in ${root}` };
-  return { ok: true, out: quiet ? dest : `backed up ${items} items → ${dest}` };
+  return { ok: false, short: "cannot write", out: `could not write a backup (${lastErr})` };
 }
 
 function backups() {
-  try { return fs.readdirSync(BACKUP_DIR).filter((f) => /^sc-backup-\d{8}-\d{6}$/.test(f)).sort().reverse().map((f) => path.join(BACKUP_DIR, f)); }
-  catch { return []; }
+  const all = [];
+  for (const base of BACKUP_DIRS) {
+    try { for (const f of fs.readdirSync(base)) if (/^sc-backup-\d{8}-\d{6}$/.test(f)) all.push(path.join(base, f)); } catch { /* none */ }
+  }
+  return all.sort((a, b) => path.basename(b).localeCompare(path.basename(a)));
 }
 
 // Newest backup back into place; refuses while the game runs and takes a safety copy first.
 function restore(prefix) {
-  if (runningNow()) return { ok: false, out: "Star Citizen is running — close the game first" };
+  if (runningNow()) return { ok: false, short: "close the game", out: "Star Citizen is running — close the game first" };
   const src = backups()[0];
-  if (!src) return { ok: false, out: `no backup in ${BACKUP_DIR}` };
+  if (!src) return { ok: false, short: "no backup yet", out: `no backup in ${BACKUP_DIRS.join(" or ")}` };
   const safety = backup(prefix, { quiet: true });
   const root = detectPrefix(prefix);
   let items = 0;
@@ -187,13 +222,13 @@ function restore(prefix) {
     }
     if (fs.existsSync(path.join(from, "USER.cfg"))) { fs.copyFileSync(path.join(from, "USER.cfg"), ifind(to, "user.cfg") || path.join(to, "USER.cfg")); items++; }
   }
-  return { ok: items > 0, out: `restored ${items} items from ${path.basename(src)}${safety.ok ? ` (current state saved as ${path.basename(safety.out)})` : ""}` };
+  return { ok: items > 0, short: items ? "" : "empty backup", out: `restored ${items} items from ${path.basename(src)}${safety.ok ? ` (current state saved as ${path.basename(safety.dest)})` : ""}` };
 }
 
 // Shader caches: %LOCALAPPDATA%\Star Citizen\<build>\{shaders,vulkanshadercache}, the channel's
 // user\client\0\shaders and the launcher's own cache. Game must be closed.
 function shaders(prefix, channel = "LIVE") {
-  if (runningNow()) return { ok: false, out: "Star Citizen is running — close the game first" };
+  if (runningNow()) return { ok: false, short: "close the game", out: "Star Citizen is running — close the game first" };
   const targets = [];
   const sc = ifind(LOCAL, "Star Citizen");
   if (sc) {
@@ -226,9 +261,14 @@ async function runToolbox(flag, channel = "LIVE", prefix) {
       default: return { ok: false, out: `${flag} is not available on Windows` };
     }
   } catch (e) {
-    return { ok: false, out: e.message || String(e) };
+    return { ok: false, short: e.code || "error", out: e.message || String(e) };
   }
 }
 
-module.exports = { platform: "windows", CHANNELS, TOOLBOX_URL, BACKUP_DIR, detectPrefix, channelDir, gameBuild, findGame, hasToolbox, launch, runToolbox,
+// Show a folder in Explorer (after the first StarStrings install: where user.cfg and global.ini are)
+function openFolder(p) {
+  try { const c = spawn(path.join(process.env.SystemRoot || "C:\\Windows", "explorer.exe"), [p], { detached: true, stdio: "ignore" }); c.on("error", () => {}); c.unref(); } catch { /* ignore */ }
+}
+
+module.exports = { platform: "windows", CHANNELS, TOOLBOX_URL, BACKUP_DIR, openFolder, detectPrefix, channelDir, gameBuild, findGame, hasToolbox, launch, runToolbox,
   _test: { ifind, backup, restore, backups, keep } };

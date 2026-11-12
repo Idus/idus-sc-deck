@@ -304,10 +304,10 @@ ${prefix}
 <div class="acts">${[
   ["kill", "Kill SC ⚠", "Force-stops Star Citizen and the RSI Launcher — for a game that hangs."],
   ["restart", "Restart launcher ⚠", "Stops both, then starts the RSI Launcher again."],
-  ["backup", "Back up", "Copies keybinds and settings (the user folder without shader caches, and USER.cfg of every channel) to Documents\\SC-backups."],
+  ["backup", "Back up", "Copies keybinds and settings (the user folder without shader caches, and USER.cfg of every channel) to Documents\\SC-backups — or to %LOCALAPPDATA%\\Idus SC Deck\\SC-backups if Documents cannot be written (OneDrive, Controlled folder access)."],
   ["restore", "Restore ⚠", "Puts back the newest backup. Only when the game is closed, and it saves the current state first."],
   ["shaders", "Clear shaders", "Deletes the shader caches in %LOCALAPPDATA%\\Star Citizen (game closed). The next start takes longer while they rebuild."],
-  ["starstrings", "StarStrings", "Downloads the newest StarStrings (MrKraken) from GitHub into the channel, keeps the old file as a backup and adds g_language = english to user.cfg."],
+  ["starstrings", "StarStrings", "Downloads the newest StarStrings (MrKraken) from GitHub into the channel, keeps the old file as a backup and adds g_language = english to user.cfg. Not installed yet? The first press installs it, then opens its guide and the game folder so you can check."],
 ].map(([v, name, text]) => `<div class="act" data-act="${v}" role="button" tabindex="0"><b>${name}</b><span>${text}</span></div>`).join("")}</div>
 <p class="hint">Click a line to pick it.</p>
 </section>`,

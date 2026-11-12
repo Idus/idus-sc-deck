@@ -240,7 +240,7 @@ function launch({ running, channel = "LIVE", session, image }) {
 // ================================================================ TOOL
 // Idus SC Toolbox action (runs `idus-sc-toolbox --<flag>`); Toolbox icon top right.
 // Dangerous actions take three presses: step 1 "Really?", step 2 "Sure?" (red), then it runs.
-function toolbox({ word, sub, subColor, icon, step = 0, short = "", busy }) {
+function toolbox({ word, sub, subColor, icon, step = 0, short = "", busy, fail }) {
   const top = head("TOOL", "") + (icon ? `<image href="${icon}" x="104" y="10" width="30" height="30"/>` : "");
   if (step) {
     const left = step === 1 ? "2 more" : "1 more";
@@ -249,6 +249,8 @@ function toolbox({ word, sub, subColor, icon, step = 0, short = "", busy }) {
       { stroke: C.error, strokeWidth: 2 });
   }
   if (busy) return frame(top + value(word) + detail("running…", C.soft));
+  // failed: the reason in red for a few seconds (the full message is in the plugin log)
+  if (fail) return frame(top + value(word) + detail(fail, C.error), { stroke: C.error, strokeWidth: 2 });
   return frame(top + value(word) + detail(sub, subColor));
 }
 // Shown on TOOL keys when the app is not installed: press opens the GitHub page

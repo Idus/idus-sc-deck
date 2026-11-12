@@ -267,6 +267,7 @@ const TB = {
   starstrings: { flag: "starstrings", word: "Strings", sub: "StarStrings" },
   fixwindows: { flag: "fix-windows", word: "Windows", sub: "to main screen" },
 };
+const STARSTRINGS_GUIDE = "https://github.com/MrKraken/StarStrings#installation";
 const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 let ssLatest = null;
 // StarStrings: "4.10 · 12 Nov" = the game version it was made for + install date.
@@ -274,7 +275,8 @@ let ssLatest = null;
 function starStringsSub(i) {
   const ch = i.settings.channel || "LIVE";
   const info = starstrings.installed(game.channelDir(ch, i.settings.prefix));
-  if (!info.installed) return { sub: "not installed", subColor: K.C.dim };
+  // Windows installs it from the key; on Linux Idus SC Toolbox does it the same way
+  if (!info.installed) return { sub: "tap to install", subColor: K.C.warn };
   const d = new Date(info.mtimeMs);
   const sub = `${info.target || "?"} · ${d.getDate()} ${MON[d.getMonth()]}`;
   const b = game.gameBuild(ch, i.settings.prefix);
@@ -289,7 +291,8 @@ const toolboxKey = {
     const a = TB[i.settings.tbAction] || TB.kill;
     const step = i.stepUntil && Date.now() < i.stepUntil ? i.step : 0;
     const extra = a.flag === "starstrings" ? starStringsSub(i) : {};
-    sdk.setImage(i.context, img(K.toolbox({ word: a.word, sub: a.sub, ...extra, icon: TOOLBOX_ICON, step, short: a.short, busy: i.busy })));
+    const fail = i.failUntil && Date.now() < i.failUntil ? i.failMsg : "";
+    sdk.setImage(i.context, img(K.toolbox({ word: a.word, sub: a.sub, ...extra, icon: TOOLBOX_ICON, step, short: a.short, busy: i.busy, fail })));
   },
   tick(i, t) {
     if (i.stepUntil && Date.now() >= i.stepUntil) { i.step = 0; i.stepUntil = 0; }
@@ -305,9 +308,14 @@ const toolboxKey = {
       i.step = step + 1; i.stepUntil = Date.now() + 3000;
       return toolboxKey.render(i);
     }
-    i.step = 0; i.stepUntil = 0; i.busy = true; toolboxKey.render(i);
+    i.step = 0; i.stepUntil = 0; i.failUntil = 0; i.busy = true; toolboxKey.render(i);
+    const ssDir = a.flag === "starstrings" ? game.channelDir(i.settings.channel || "LIVE", i.settings.prefix) : null;
+    const firstInstall = !!ssDir && !starstrings.installed(ssDir).installed;
     const r = await game.runToolbox(a.flag, i.settings.channel, i.settings.prefix);
     i.busy = false;
+    if (!r.ok) { i.failMsg = r.short || "failed · see log"; i.failUntil = Date.now() + 8000; }
+    // First StarStrings install: show its guide and the folder with user.cfg and data\Localization
+    if (r.ok && firstInstall && game.openFolder) { sdk.openUrl(STARSTRINGS_GUIDE); game.openFolder(ssDir); }
     if (a.flag === "starstrings") ssLatest = await starstrings.latestRelease();
     toolboxKey.render(i);
     sdk.log(`${APP_NAME}: ${a.flag} ${r.ok ? "ok" : "failed"}: ${r.out}`);
