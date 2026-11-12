@@ -5,7 +5,6 @@
 // (what Elgato's guidelines ask for in the Stream Deck app; for the Windows build later).
 const fs = require("node:fs");
 const path = require("node:path");
-const { chromium } = require("playwright");
 
 // ICON_OUT=<plugin dir>: only write the action-list icons there (used by build-elgato.cjs)
 const P = process.env.ICON_OUT ? path.resolve(process.env.ICON_OUT) : path.join(__dirname, "..", "se.wolfpack.idusscdeck.sdPlugin");
@@ -48,6 +47,7 @@ const big = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" vi
 fs.writeFileSync(path.join(__dirname, "..", "idus-sc-deck.svg"), big);
 
 (async () => {
+  const { chromium } = require("playwright"); // only for the PNGs below, not for ICON_OUT (Elgato build)
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 512, height: 512 } });
   const shot = async (svg, size, out, scale = 1) => {
