@@ -18,7 +18,8 @@ const PLUG = path.join(OUTDIR, `${ID}.sdPlugin`);
 const BIN = path.join(__dirname, "node_modules", ".bin");
 
 const src = JSON.parse(fs.readFileSync(path.join(SRC, "manifest.json"), "utf8"));
-const VERSION = `${src.Version}.0.0.0`.split(".").slice(0, 4).join("."); // 1.0 -> 1.0.0.0
+// 1.0 -> 1.0.0.<build>; ELGATO_BUILD=n bumps the last part so a test build installs over the previous one
+const VERSION = `${src.Version}.0.0`.split(".").slice(0, 3).concat(String(Number(process.env.ELGATO_BUILD || 0))).join(".");
 
 const actions = [
   ["clock", "TIME · Server Clock", "Time in a server region (US W, US E, EU, Asia, Australia, your own or any city) or UTC with the date — patches and events are announced in UTC."],

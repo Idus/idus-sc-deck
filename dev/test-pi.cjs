@@ -47,7 +47,9 @@ const cases = {
     await page.addInitScript(() => { window.__opened = []; window.open = (u, t) => { window.__opened.push([u, t]); }; });
     await page.goto("file://" + path.join(PI, name + ".html"));
     await page.evaluate(([port, name, settings]) => {
-      window.connectElgatoStreamDeckSocket(port, "ctx-" + name, "registerPropertyInspector", "{}",
+      // Stream Deck gives the page its own id (different from the key's context); OpenDeck the key's
+      const elg = document.documentElement.dataset.target === "elgato";
+      window.connectElgatoStreamDeckSocket(port, elg ? "pi-" + name : "ctx-" + name, "registerPropertyInspector", "{}",
         JSON.stringify({ action: "se.wolfpack.idusscdeck." + name, context: "ctx-" + name, payload: { settings } }));
     }, [port, name, c.settings]);
     await page.waitForTimeout(500);
@@ -57,7 +59,8 @@ const cases = {
       await page.selectOption("select[data-setting]", c.change[1]);
       await page.waitForTimeout(200);
       const set = got.filter((m) => m.event === "setSettings").pop();
-      changed = set ? `${set.context} ${JSON.stringify(set.payload)}` : "NOT SAVED";
+      const want = (await page.evaluate(() => document.documentElement.dataset.target)) === "elgato" ? "pi-" + name : "ctx-" + name;
+      changed = !set ? "NOT SAVED" : set.context !== want ? `WRONG CONTEXT ${set.context} (want ${want})` : `${set.context} ${JSON.stringify(set.payload)}`;
     }
     await page.click("footer a[href*='github']");
     await page.waitForTimeout(100);

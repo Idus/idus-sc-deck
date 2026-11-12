@@ -38,7 +38,9 @@
 
   function start(port, uuid, registerEvent, _info, actionInfo) {
     const a = typeof actionInfo === "string" ? JSON.parse(actionInfo) : actionInfo;
-    context = a.context; action = a.action;
+    // Messages from this page go out on: Stream Deck — the page's own id (uuid); OpenDeck — the key's
+    // context. With the wrong one Stream Deck drops setSettings without a word.
+    context = ELG ? uuid : a.context; action = a.action;
     settings = (a.payload && a.payload.settings) || {};
     fill();
     socket = new WebSocket("ws://127.0.0.1:" + port);
