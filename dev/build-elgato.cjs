@@ -36,7 +36,7 @@ const manifest = {
   UUID: ID,
   Version: VERSION,
   Author: src.Author,
-  Description: "Star Citizen keys in the Idus look: server-region clocks and UTC, a one-key Contested Zone hangar timer, RSI server status, game version, funding, your server/shard, Armistice zone and 30K counter from Game.log, a launch key and built-in tools including StarStrings updates. Unofficial fan project, not affiliated with Cloud Imperium Games.",
+  Description: "Star Citizen keys in the Idus look: server-region clocks and UTC, a one-key Contested Zone hangar timer, RSI server status, game version, funding, your server/shard, Armistice zone and 30K counter from Game.log, a launch key and built-in tools including StarStrings updates. Made by Idus with AI assistance (Claude). Unofficial fan project, not affiliated with Cloud Imperium Games.",
   URL: "https://github.com/Idus/idus-sc-deck",
   SupportURL: "https://github.com/Idus/idus-sc-deck/issues",
   Icon: "imgs/plugin",

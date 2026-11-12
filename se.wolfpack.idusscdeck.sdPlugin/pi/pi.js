@@ -99,14 +99,14 @@
     if (f && ELG) {
       // Elgato Marketplace: support/tip links belong on the product page, so only GitHub here,
       // plus a "read more" about Star Citizen on Linux.
-      f.innerHTML = 'Made by Idus · <a href="https://github.com/Idus/idus-sc-deck">GitHub</a> — help, source and feedback' +
+      f.innerHTML = 'Made by Idus, with AI assistance (Claude) · <a href="https://github.com/Idus/idus-sc-deck">GitHub</a> — help, source and feedback' +
         '<details class="more"><summary>Star Citizen on Linux? Read more</summary>' +
         '<p>Most of these keys also exist for <a href="https://github.com/nekename/OpenDeck">OpenDeck</a>, the Stream Deck software for Linux — same plugin, <a href="https://github.com/Idus/idus-sc-deck">Idus SC Deck</a>.</p>' +
         '<p>Star Citizen runs on Linux thanks to the <b>Star Citizen Linux Users Group (LUG)</b>: <a href="https://github.com/starcitizen-lug/lug-helper">LUG Helper</a> installs the game, and the <a href="https://github.com/starcitizen-lug/knowledge-base">knowledge base</a> and <a href="https://starcitizen-lug.github.io">LUG wiki</a> help with the rest.</p>' +
         '<p>On Linux, <a href="https://github.com/Idus/idus-sc-toolbox">Idus SC Toolbox</a> adds a launcher update check, keybind backups, shader cleanup and StarStrings updates. <b class="warn">Made for and developed on CachyOS</b> (Arch-based, KDE Plasma 6) — other distributions may need adjustments.</p>' +
         '</details><span class="fine">Unofficial fan project, not affiliated with Cloud Imperium Games.</span>';
     } else if (f) {
-      f.innerHTML = 'Made by Idus · <a href="https://github.com/Idus/idus-sc-deck">GitHub</a> · ' +
+      f.innerHTML = 'Made by Idus, with AI assistance (Claude) · <a href="https://github.com/Idus/idus-sc-deck">GitHub</a> · ' +
         '<a href="https://ko-fi.com/N4N2QZHKK">☕ Tip me on Ko-fi</a><br>' +
         'New to SC? Code <a class="ref" href="https://www.robertsspaceindustries.com/enlist?referral=STAR-2GDF-FDKH">STAR-2GDF-FDKH</a> gives 5,000 aUEC.<br>' +
         '<span class="fine">Unofficial fan project, not affiliated with Cloud Imperium Games.</span>';
