@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Idus SC Deck installer  ·  v1.0  ·  build 2026-11-12
+# Idus SC Deck installer  ·  v1.1.1  ·  build 2026-11-12
 # Installs the Idus SC Deck plugin into OpenDeck (native or Flatpak) for the current user.
 #   bash install-idus-sc-deck.sh             install / update
 #   bash install-idus-sc-deck.sh --uninstall remove the plugin (your key layout stays in OpenDeck)
@@ -10,6 +10,7 @@ ID="se.wolfpack.idusscdeck"
 REPO="https://github.com/Idus/idus-sc-deck"
 ZIP_URL="${IDUS_SC_DECK_ZIP:-$REPO/releases/latest/download/$ID.sdPlugin.zip}"
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]:-.}")" && pwd)"
+RUN_AS_FILE="${BASH_SOURCE[0]:-}"   # empty when piped from curl
 
 # OpenDeck's plugin folder: native package first, then the Flatpak
 PLUGINS="$HOME/.config/opendeck/plugins"
@@ -46,15 +47,21 @@ if [ ! -d "$(dirname "$PLUGINS")" ]; then
     exit 1
 fi
 
-# Plugin files: next to this script (git clone) or from the latest release
+# Plugin files: next to this script (git clone), the release zip next to this script
+# (downloaded release files, e.g. by Idus GitHub Updater) or the latest release
 TMP=""
 if [ -f "$SRC/$ID.sdPlugin/manifest.json" ]; then
     FROM="$SRC/$ID.sdPlugin"
 else
     TMP="$(mktemp -d)"
     trap 'rm -rf "$TMP"' EXIT
-    echo "   downloading the latest release…"
-    curl -fsSL --max-time 120 -o "$TMP/plugin.zip" "$ZIP_URL"
+    if [ -n "$RUN_AS_FILE" ] && [ -z "${IDUS_SC_DECK_ZIP:-}" ] && [ -f "$SRC/$ID.sdPlugin.zip" ]; then
+        echo "   using $ID.sdPlugin.zip next to this script"
+        cp "$SRC/$ID.sdPlugin.zip" "$TMP/plugin.zip"
+    else
+        echo "   downloading the latest release…"
+        curl -fsSL --max-time 120 -o "$TMP/plugin.zip" "$ZIP_URL"
+    fi
     if command -v unzip >/dev/null 2>&1; then unzip -q "$TMP/plugin.zip" -d "$TMP"
     else python3 -c 'import sys,zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])' "$TMP/plugin.zip" "$TMP"; fi
     FROM="$TMP/$ID.sdPlugin"
