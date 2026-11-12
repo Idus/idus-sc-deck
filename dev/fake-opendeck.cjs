@@ -97,6 +97,7 @@ wss.on("connection", (ws) => {
       press("tool-kill", 4500);
       press("tool-backup", 4500);
       press("stat-ptu", 6000);
+      press("tool-strings", 5500);
       script.forEach(([at, fn, what], n) => {
         setTimeout(() => { fn(); log.push(`${ts()} LOG: ${what}`); }, at);
         setTimeout(() => { // checkpoint 2.5 s later (the LOG keys poll every 2 s)

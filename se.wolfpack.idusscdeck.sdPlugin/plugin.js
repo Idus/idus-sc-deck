@@ -1,4 +1,4 @@
-// Idus SC Deck  ·  v1.1  ·  build 2026-11-12
+// Idus SC Deck  ·  v1.1.1  ·  build 2026-11-12
 // Star Citizen keys for OpenDeck (Stream Deck on Linux) in the Idus look.
 // Families: TIME · CZ · STAT · LOG · PLAY · TOOL — the orange tab on every key.
 // Made by Idus · https://github.com/Idus/idus-sc-deck · MIT License
@@ -17,7 +17,7 @@ const starstrings = require("./lib/starstrings");
 const { STATE_DIR } = require("./lib/paths");
 
 const APP_NAME = "Idus SC Deck";
-const APP_VERSION = "1.1";
+const APP_VERSION = "1.1.1";
 const BUILD = "2026-11-12";
 const ID = "se.wolfpack.idusscdeck";
 
@@ -285,14 +285,17 @@ function starStringsSub(i) {
     (ssLatest && ssLatest.published > info.mtimeMs + 3600 * 1000);
   return { sub, subColor: old ? K.C.warn : ssLatest ? K.C.ok : null };
 }
+// StarStrings is built in on every platform (also without Idus SC Toolbox on Linux); the other
+// TOOL actions run Idus SC Toolbox on Linux and the built-in tools on Windows.
+const builtIn = (a) => a.flag === "starstrings";
 const toolboxKey = {
   render(i) {
-    if (!game.hasToolbox()) return sdk.setImage(i.context, img(K.getToolbox({ icon: TOOLBOX_ICON_BIG })));
     const a = TB[i.settings.tbAction] || TB.kill;
+    if (!builtIn(a) && !game.hasToolbox()) return sdk.setImage(i.context, img(K.getToolbox({ icon: TOOLBOX_ICON_BIG })));
     const step = i.stepUntil && Date.now() < i.stepUntil ? i.step : 0;
     const extra = a.flag === "starstrings" ? starStringsSub(i) : {};
     const fail = i.failUntil && Date.now() < i.failUntil ? i.failMsg : "";
-    sdk.setImage(i.context, img(K.toolbox({ word: a.word, sub: a.sub, ...extra, icon: TOOLBOX_ICON, step, short: a.short, busy: i.busy, fail })));
+    sdk.setImage(i.context, img(K.toolbox({ word: a.word, sub: a.sub, ...extra, icon: builtIn(a) ? "" : TOOLBOX_ICON, step, short: a.short, busy: i.busy, fail })));
   },
   tick(i, t) {
     if (i.stepUntil && Date.now() >= i.stepUntil) { i.step = 0; i.stepUntil = 0; }
@@ -300,9 +303,9 @@ const toolboxKey = {
     toolboxKey.render(i);
   },
   async keyUp(i) {
-    if (!game.hasToolbox()) return sdk.openUrl(game.TOOLBOX_URL);
-    if (i.busy) return;
     const a = TB[i.settings.tbAction] || TB.kill;
+    if (!builtIn(a) && !game.hasToolbox()) return sdk.openUrl(game.TOOLBOX_URL);
+    if (i.busy) return;
     const step = i.stepUntil && Date.now() < i.stepUntil ? i.step : 0;
     if (a.steps && step < a.steps) {          // "Really?" -> "Sure?" -> run; 3 s per step
       i.step = step + 1; i.stepUntil = Date.now() + 3000;
@@ -311,10 +314,12 @@ const toolboxKey = {
     i.step = 0; i.stepUntil = 0; i.failUntil = 0; i.busy = true; toolboxKey.render(i);
     const ssDir = a.flag === "starstrings" ? game.channelDir(i.settings.channel || "LIVE", i.settings.prefix) : null;
     const firstInstall = !!ssDir && !starstrings.installed(ssDir).installed;
-    const r = await game.runToolbox(a.flag, i.settings.channel, i.settings.prefix);
+    const r = builtIn(a)
+      ? await starstrings.update(ssDir, { stateDir: STATE_DIR })
+      : await game.runToolbox(a.flag, i.settings.channel, i.settings.prefix);
     i.busy = false;
     if (!r.ok) { i.failMsg = r.short || "failed · see log"; i.failUntil = Date.now() + 8000; }
-    // First StarStrings install: show its guide and the folder with user.cfg and data\Localization
+    // First StarStrings install: show its guide and the folder with user.cfg and data/Localization
     if (r.ok && firstInstall && game.openFolder) { sdk.openUrl(STARSTRINGS_GUIDE); game.openFolder(ssDir); }
     if (a.flag === "starstrings") ssLatest = await starstrings.latestRelease();
     toolboxKey.render(i);

@@ -120,4 +120,9 @@ function runToolbox(flag, channel) {
   });
 }
 
-module.exports = { platform: "linux", CHANNELS, TOOLBOX_URL, detectPrefix, channelDir, gameBuild, findGame, hasToolbox, launch, runToolbox };
+// Show a folder in the file manager (after the first StarStrings install)
+function openFolder(p) {
+  try { const c = spawn("xdg-open", [p], { detached: true, stdio: "ignore" }); c.on("error", () => {}); c.unref(); } catch { /* ignore */ }
+}
+
+module.exports = { platform: "linux", openFolder, CHANNELS, TOOLBOX_URL, detectPrefix, channelDir, gameBuild, findGame, hasToolbox, launch, runToolbox };

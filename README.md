@@ -5,12 +5,12 @@ Star Citizen keys for **[OpenDeck](https://github.com/nekename/OpenDeck)** (Stre
 ![Idus SC Deck keys](docs/screenshot.png)
 
 > [!TIP]
-> **Even better with [Idus SC Toolbox](https://github.com/Idus/idus-sc-toolbox): StarStrings on one key.**
-> The **TOOL · StarStrings** key shows which game version your [StarStrings](https://github.com/MrKraken/StarStrings) were made for and when you installed them, and turns amber as soon as a newer release is out. One press downloads the newest release, backs up your old `global.ini` and installs the new one — no browser, no unzipping, no copying into the game folder.
+> **StarStrings on one key — built in, on Linux and Windows.**
+> The **TOOL · StarStrings** key shows which game version your [StarStrings](https://github.com/MrKraken/StarStrings) were made for and when you installed them, and turns amber as soon as a newer release is out. One press downloads the newest release, keeps your old `global.ini`, installs the new one and adds the `user.cfg` line — no browser, no unzipping, no copying into the game folder. Not installed yet? The key says *tap to install*.
 >
 > ![The StarStrings key: up to date, new release out, one press to update](docs/starstrings.png)
 >
-> Idus SC Toolbox is a free, separate app for Star Citizen on Linux (KDE Plasma 6) and a companion to the [LUG Helper](https://github.com/starcitizen-lug/lug-helper). With it, the TOOL keys also stop a hung game, restart or patch the launcher, back up and restore keybinds, clear shaders and put the windows back on the main screen — and **PLAY · Launch** checks for a newer RSI Launcher before it starts. **[Get Idus SC Toolbox →](https://github.com/Idus/idus-sc-toolbox)**
+> On Linux, **[Idus SC Toolbox](https://github.com/Idus/idus-sc-toolbox)** — a free, separate app for Star Citizen (KDE Plasma 6) and a companion to the [LUG Helper](https://github.com/starcitizen-lug/lug-helper) — adds the other TOOL keys: stop a hung game, restart or patch the launcher, back up and restore keybinds, clear shaders and put the windows back on the main screen — and **PLAY · Launch** checks for a newer RSI Launcher before it starts. **[Get Idus SC Toolbox →](https://github.com/Idus/idus-sc-toolbox)**
 
 | Family | Key | What it shows | Press |
 |---|---|---|---|
@@ -19,7 +19,7 @@ Star Citizen keys for **[OpenDeck](https://github.com/nekename/OpenDeck)** (Stre
 | **STAT** | Status & Stats | One key, four views: **status** — RSI Platform, PU and Arena Commander, all three or one service with an open incident's title; **version** — installed game version with a green dot when it matches the newest release notes and amber when a newer one is out, orange lamp = patched since you last looked; **funding** — crowdfunding total and yesterday's amount; **VRAM** — GPU memory in use and the biggest other program, amber above 85 % (NVIDIA) | Status: opens [status.robertsspaceindustries.com](https://status.robertsspaceindustries.com/) · Version: marks it as seen and opens the release notes · others: refresh |
 | **LOG** | Game.log | From your own `Game.log`, one view per key: **server** (region + shard + time there), **region**, **shard**, **Armistice zone** (green frame = weapons locked, amber = outside) or **30K** (unexpected disconnects this session; your own quits and AFK don't count) | Refreshes |
 | **PLAY** | Launch | The Idus rocket with an orange **▶ LAUNCH** plate; green **RUNNING** with the session time while the game runs | Starts the game |
-| **TOOL** | Toolbox Action (Linux) · SC Tools (Windows) | Linux: one [Idus SC Toolbox](https://github.com/Idus/idus-sc-toolbox) action — kill, restart launcher, patch/verify, backup, restore, shaders, StarStrings, fix windows. Windows: the same tools built in — kill, restart launcher, backup, restore, shaders, StarStrings | Runs it — kill, restart, patch and restore take three presses: **Really?** → **Sure?** → run |
+| **TOOL** | Toolbox Action (Linux) · SC Tools (Windows) | Linux: one [Idus SC Toolbox](https://github.com/Idus/idus-sc-toolbox) action — kill, restart launcher, patch/verify, backup, restore, shaders, fix windows — plus **StarStrings**, built in (no Toolbox needed). Windows: the same tools built in — kill, restart launcher, backup, restore, shaders, StarStrings | Runs it — kill, restart, patch and restore take three presses: **Really?** → **Sure?** → run |
 
 ## Requirements
 
@@ -28,7 +28,7 @@ Star Citizen keys for **[OpenDeck](https://github.com/nekename/OpenDeck)** (Stre
 - **Node.js 22 or newer** (`sudo pacman -S nodejs` on Arch/CachyOS). OpenDeck starts the plugin with your system `node`.
 - For **PLAY**, the **STAT** version view, **LOG** and **TOOL**: Star Citizen installed with [LUG Helper](https://github.com/starcitizen-lug/lug-helper). The game folder is read from LUG's config, or set it in the key's settings.
 - For the **STAT** VRAM view: an NVIDIA card (`nvidia-smi`).
-- Optional: [Idus SC Toolbox](https://github.com/Idus/idus-sc-toolbox) for the TOOL keys and the launcher update check on PLAY.
+- Optional: [Idus SC Toolbox](https://github.com/Idus/idus-sc-toolbox) for the TOOL keys (StarStrings works without it) and the launcher update check on PLAY.
 
 **Windows**
 - **Elgato Stream Deck app 7.1 or newer** (it brings its own Node.js) on Windows 10 or 11.
@@ -75,7 +75,7 @@ The Windows build is made from the same code: `node dev/build-elgato.cjs` (see `
 
 The game replaces `Game.log` at every start; the keys follow the new file automatically and count from zero.
 
-**TOOL · StarStrings** shows the game version the installed StarStrings were made for and the install date (e.g. "4.10 · 8 Nov") — StarStrings has no release number inside its file. Green dot = no newer release on GitHub; amber = a newer release exists or the strings are for an older patch. The newest release is checked at most every 6 hours.
+**TOOL · StarStrings** (built in, no Toolbox needed) shows the game version the installed StarStrings were made for and the install date (e.g. "4.10 · 8 Nov") — StarStrings has no release number inside its file. A press installs the newest release, keeps the old `global.ini` as `global.ini.BAK-<date>` and adds `g_language = english` to `user.cfg` if it is missing; the first install also opens the StarStrings guide and the game folder. Green dot = no newer release on GitHub; amber = a newer release exists or the strings are for an older patch. The newest release is checked at most every 6 hours.
 
 **PLAY · Launch** starts the game the best way it can find: a custom command if you set one; otherwise `idus-sc-toolbox --launch` if Idus SC Toolbox is installed (it checks for a newer RSI Launcher first); otherwise LUG Helper's `sc-launch.sh`. You can put your own image above the button — only use images you have the right to use.
 

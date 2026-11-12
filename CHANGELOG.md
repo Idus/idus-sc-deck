@@ -2,6 +2,11 @@
 
 All notable changes to Idus SC Deck. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.1] - 2026-11-12
+
+### Changed
+- **StarStrings is built in on Linux too** and works without Idus SC Toolbox: it adds `g_language = english` to `user.cfg` (Toolbox only warned about it), and the first install opens the StarStrings guide and the game folder (`xdg-open`). The other TOOL actions still use Idus SC Toolbox on Linux.
+
 ## [1.1] - 2026-11-12
 
 ### Added

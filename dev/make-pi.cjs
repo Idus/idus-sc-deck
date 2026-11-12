@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const ELG = process.env.PI_TARGET === "elgato";
 const OUT = process.argv[2] ? path.resolve(process.argv[2]) : path.join(__dirname, "..", "se.wolfpack.idusscdeck.sdPlugin", "pi");
-const VERSION = "v1.1";
+const VERSION = "v1.1.1";
 
 const channel = (def = "LIVE") => `<label>Game channel
   <select data-setting="channel" data-default="${def}">
@@ -329,6 +329,7 @@ document.addEventListener("pi-settings", markAct); markAct();`),
 d=$(mktemp -d) &amp;&amp; cd "$d" &amp;&amp; for f in idus-sc-toolbox.py install-idus-sc-toolbox.sh idus-sc-toolbox.png; do curl -fsSLO "https://github.com/Idus/idus-sc-toolbox/releases/latest/download/$f"; done &amp;&amp; bash install-idus-sc-toolbox.sh</pre></div>
 <div class="btnrow"><button class="btn primary" type="button" data-copy-pre="tbCmd">Copy install command</button></div>
 <p class="hint">Other distributions: install the GTK4 Python bindings (python-gobject / python3-gi and gtk4), then run the second line.</p>
+<p class="hint">StarStrings works without it — pick it below.</p>
 </div>
 <label>The key runs
   <select data-setting="tbAction" data-default="kill">
@@ -353,7 +354,7 @@ ${channel()}
   ["backup", "Back up", "Saves keybinds and settings (the user folder and USER.cfg of every channel) plus sc-launch.sh to a dated backup."],
   ["restore", "Restore ⚠", "Puts back the newest backup. Only when the game is closed, and it takes a safety copy of the current state first."],
   ["shaders", "Clear shaders", "Deletes the shader cache for the channel (game closed). The next launch takes longer while it rebuilds."],
-  ["starstrings", "StarStrings", "Downloads the newest StarStrings (MrKraken) from GitHub into the channel."],
+  ["starstrings", "StarStrings", "Built in — works without Idus SC Toolbox. Downloads the newest StarStrings (MrKraken) into the channel, keeps the old file and adds g_language = english to user.cfg. Not installed yet? The first press installs it, then opens its guide and the game folder."],
   ["fixwindows", "Fix windows", "Centres the RSI Launcher and moves Star Citizen to the main screen (KDE)."],
 ].map(([v, name, text]) => `<div class="act" data-act="${v}" role="button" tabindex="0"><b>${name}</b><span>${text}</span></div>`).join("")}</div>
 <p class="hint">Click a line to pick it.</p>
@@ -373,7 +374,7 @@ document.querySelectorAll(".act").forEach((el) => {
 document.addEventListener("pi-settings", markAct); markAct();`,
     `<div class="tbbox">
 <div class="tbhead"><b>Idus SC Toolbox</b><span class="pill" id="tbPill">checking…</span></div>
-<p class="hint">A separate, free app for Star Citizen on <b>Linux</b> (KDE Plasma 6), a companion to the LUG Helper. The TOOL keys run its actions, so it has to be installed on this PC — all other keys work without it.</p>
+<p class="hint">A separate, free app for Star Citizen on <b>Linux</b> (KDE Plasma 6), a companion to the LUG Helper. The TOOL keys run its actions, so it has to be installed on this PC — StarStrings and all other keys work without it.</p>
 <p class="hint"><a href="https://github.com/Idus/idus-sc-toolbox">Idus SC Toolbox on GitHub</a> · <a href="#" onclick="PI.send({ cmd: 'info' }); return false;">check again</a></p>
 <p class="hint">Built on the Star Citizen <b>Linux Users Group</b>: <a href="https://github.com/starcitizen-lug/lug-helper">LUG Helper</a> · <a href="https://github.com/starcitizen-lug/knowledge-base">knowledge base</a> · <a href="https://starcitizen-lug.github.io">wiki</a> · <a href="https://robertsspaceindustries.com/orgs/LUG">LUG on RSI</a></p>
 </div>`),
