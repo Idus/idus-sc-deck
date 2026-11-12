@@ -43,7 +43,7 @@ One line (downloads the latest release):
 curl -fsSL https://github.com/Idus/idus-sc-deck/releases/latest/download/install-idus-sc-deck.sh | bash
 ```
 
-Or from a clone: `bash install-idus-sc-deck.sh`. Or let **[Idus GitHub Updater](https://github.com/Idus/idus-github-updater)** (v1.4.2 or newer) install it and keep it up to date — it is in its list of Idus apps. Then **quit OpenDeck from its tray icon** and start it again. The keys are under **Idus SC Deck** in the action list, in family order: TIME, CZ, STAT, LOG, PLAY, TOOL.
+Or from a clone: `bash install-idus-sc-deck.sh`. Or let **[Idus GitHub Updater](https://github.com/Idus/idus-github-updater)** (v1.5 or newer) install it and keep it up to date — it is in its list of Idus apps. Then **quit OpenDeck from its tray icon** and start it again. The keys are under **Idus SC Deck** in the action list, in family order: TIME, CZ, STAT, LOG, PLAY, TOOL.
 
 The installer copies the plugin to `~/.config/opendeck/plugins/se.wolfpack.idusscdeck.sdPlugin` (or the Flatpak equivalent) and fetches the Idus fonts (Saira, IBM Plex Sans, JetBrains Mono) to `~/.local/share/fonts/idus` if they are missing.
 
