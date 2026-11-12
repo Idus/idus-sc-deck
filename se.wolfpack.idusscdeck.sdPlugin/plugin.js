@@ -1,4 +1,4 @@
-// Idus SC Deck  ·  v1.0  ·  build 2026-11-12
+// Idus SC Deck  ·  v1.1  ·  build 2026-11-12
 // Star Citizen keys for OpenDeck (Stream Deck on Linux) in the Idus look.
 // Families: TIME · CZ · STAT · LOG · PLAY · TOOL — the orange tab on every key.
 // Made by Idus · https://github.com/Idus/idus-sc-deck · MIT License
@@ -17,7 +17,7 @@ const starstrings = require("./lib/starstrings");
 const { STATE_DIR } = require("./lib/paths");
 
 const APP_NAME = "Idus SC Deck";
-const APP_VERSION = "1.0";
+const APP_VERSION = "1.1";
 const BUILD = "2026-11-12";
 const ID = "se.wolfpack.idusscdeck";
 

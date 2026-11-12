@@ -1,6 +1,6 @@
 # Idus SC Deck
 
-Star Citizen keys for **[OpenDeck](https://github.com/nekename/OpenDeck)** (Stream Deck on Linux), in the Idus look: dark keys, status shown by colour *and* shape, and an orange tab on every key that names its family.
+Star Citizen keys for **[OpenDeck](https://github.com/nekename/OpenDeck)** (Stream Deck on Linux) and the **Elgato Stream Deck app on Windows**, in the Idus look: dark keys, status shown by colour *and* shape, and an orange tab on every key that names its family.
 
 ![Idus SC Deck keys](docs/screenshot.png)
 
@@ -19,17 +19,23 @@ Star Citizen keys for **[OpenDeck](https://github.com/nekename/OpenDeck)** (Stre
 | **STAT** | Status & Stats | One key, four views: **status** — RSI Platform, PU and Arena Commander, all three or one service with an open incident's title; **version** — installed game version with a green dot when it matches the newest release notes and amber when a newer one is out, orange lamp = patched since you last looked; **funding** — crowdfunding total and yesterday's amount; **VRAM** — GPU memory in use and the biggest other program, amber above 85 % (NVIDIA) | Status: opens [status.robertsspaceindustries.com](https://status.robertsspaceindustries.com/) · Version: marks it as seen and opens the release notes · others: refresh |
 | **LOG** | Game.log | From your own `Game.log`, one view per key: **server** (region + shard + time there), **region**, **shard**, **Armistice zone** (green frame = weapons locked, amber = outside) or **30K** (unexpected disconnects this session; your own quits and AFK don't count) | Refreshes |
 | **PLAY** | Launch | The Idus rocket with an orange **▶ LAUNCH** plate; green **RUNNING** with the session time while the game runs | Starts the game |
-| **TOOL** | Toolbox Action | One [Idus SC Toolbox](https://github.com/Idus/idus-sc-toolbox) action: kill, restart launcher, patch/verify, backup, restore, shaders, StarStrings, fix windows | Runs it — kill, restart, patch and restore take three presses: **Really?** → **Sure?** → run |
+| **TOOL** | Toolbox Action (Linux) · SC Tools (Windows) | Linux: one [Idus SC Toolbox](https://github.com/Idus/idus-sc-toolbox) action — kill, restart launcher, patch/verify, backup, restore, shaders, StarStrings, fix windows. Windows: the same tools built in — kill, restart launcher, backup, restore, shaders, StarStrings | Runs it — kill, restart, patch and restore take three presses: **Really?** → **Sure?** → run |
 
 ## Requirements
 
+**Linux**
 - **OpenDeck** 2.x — native package or Flatpak.
 - **Node.js 22 or newer** (`sudo pacman -S nodejs` on Arch/CachyOS). OpenDeck starts the plugin with your system `node`.
 - For **PLAY**, the **STAT** version view, **LOG** and **TOOL**: Star Citizen installed with [LUG Helper](https://github.com/starcitizen-lug/lug-helper). The game folder is read from LUG's config, or set it in the key's settings.
 - For the **STAT** VRAM view: an NVIDIA card (`nvidia-smi`).
 - Optional: [Idus SC Toolbox](https://github.com/Idus/idus-sc-toolbox) for the TOOL keys and the launcher update check on PLAY.
 
-## Install
+**Windows**
+- **Elgato Stream Deck app 7.1 or newer** (it brings its own Node.js) on Windows 10 or 11.
+- Star Citizen installed with the RSI Launcher. The game folder is found on its own (Program Files or other drives), or set it in the key's settings.
+- Nothing else: no fonts to install, and the TOOL keys have the tools built in.
+
+## Install on Linux (OpenDeck)
 
 One line (downloads the latest release):
 
@@ -40,6 +46,18 @@ curl -fsSL https://github.com/Idus/idus-sc-deck/releases/latest/download/install
 Or from a clone: `bash install-idus-sc-deck.sh`. Then **quit OpenDeck from its tray icon** and start it again. The keys are under **Idus SC Deck** in the action list, in family order: TIME, CZ, STAT, LOG, PLAY, TOOL.
 
 The installer copies the plugin to `~/.config/opendeck/plugins/se.wolfpack.idusscdeck.sdPlugin` (or the Flatpak equivalent) and fetches the Idus fonts (Saira, IBM Plex Sans, JetBrains Mono) to `~/.local/share/fonts/idus` if they are missing.
+
+## Install on Windows (Elgato Stream Deck)
+
+Download **`se.wolfpack.idusscdeck.streamDeckPlugin`** from the [latest release](https://github.com/Idus/idus-sc-deck/releases/latest) and double-click it — the Stream Deck app installs it. The keys are under **Idus SC Deck**. (Coming to the Elgato Marketplace.)
+
+On Windows the **TOOL · SC Tools** key does the work itself:
+- **Kill SC / Restart launcher** — stops Star Citizen and the RSI Launcher (and starts the launcher again).
+- **Back up / Restore** — keybinds and settings (`user` folder without shader caches, and `USER.cfg`) to `Documents\SC-backups`, or `%LOCALAPPDATA%\Idus SC Deck\SC-backups` if Documents can't be written. Restore only with the game closed, after a safety copy.
+- **Clear shaders** — the caches in `%LOCALAPPDATA%\Star Citizen`.
+- **StarStrings** — downloads the newest release, keeps the old `global.ini`, adds `g_language = english` to `user.cfg`. Not installed yet? The key says *tap to install*, and the first install opens the StarStrings guide and the game folder.
+
+The Windows build is made from the same code: `node dev/build-elgato.cjs` (see `dev/README.md`).
 
 ## The keys in more detail
 

@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const ELG = process.env.PI_TARGET === "elgato";
 const OUT = process.argv[2] ? path.resolve(process.argv[2]) : path.join(__dirname, "..", "se.wolfpack.idusscdeck.sdPlugin", "pi");
-const VERSION = "v1.0";
+const VERSION = "v1.1";
 
 const channel = (def = "LIVE") => `<label>Game channel
   <select data-setting="channel" data-default="${def}">

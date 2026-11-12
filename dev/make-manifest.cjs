@@ -15,7 +15,7 @@ const actions = [
 const manifest = {
   Name: "Idus SC Deck",
   UUID: ID,
-  Version: "1.0",
+  Version: "1.1",
   Author: "Idus",
   Description: "Star Citizen keys for OpenDeck on Linux, grouped as TIME, CZ, STAT, LOG, PLAY and TOOL: server-region clocks and UTC, a one-key Contested Zone hangar timer, STAT views (RSI server status, game version vs newest, funding, VRAM), Game.log views (server/shard, Armistice zone, 30K counter), a launch key and Idus SC Toolbox actions. Made by Idus with AI assistance (Claude). Unofficial fan project, not affiliated with Cloud Imperium Games.",
   URL: "https://github.com/Idus/idus-sc-deck",
