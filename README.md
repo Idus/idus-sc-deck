@@ -4,6 +4,14 @@ Star Citizen keys for **[OpenDeck](https://github.com/nekename/OpenDeck)** (Stre
 
 ![Idus SC Deck keys](docs/screenshot.png)
 
+> [!TIP]
+> **Even better with [Idus SC Toolbox](https://github.com/Idus/idus-sc-toolbox): StarStrings on one key.**
+> The **TOOL · StarStrings** key shows which game version your [StarStrings](https://github.com/MrKraken/StarStrings) were made for and when you installed them, and turns amber as soon as a newer release is out. One press downloads the newest release, backs up your old `global.ini` and installs the new one — no browser, no unzipping, no copying into the game folder.
+>
+> ![The StarStrings key: up to date, new release out, one press to update](docs/starstrings.png)
+>
+> Idus SC Toolbox is a free, separate app for Star Citizen on Linux (KDE Plasma 6) and a companion to the [LUG Helper](https://github.com/starcitizen-lug/lug-helper). With it, the TOOL keys also stop a hung game, restart or patch the launcher, back up and restore keybinds, clear shaders and put the windows back on the main screen — and **PLAY · Launch** checks for a newer RSI Launcher before it starts. **[Get Idus SC Toolbox →](https://github.com/Idus/idus-sc-toolbox)**
+
 | Family | Key | What it shows | Press |
 |---|---|---|---|
 | **TIME** | Server Clock | The time in a server region — US W, US E, EU, Asia, Australia, your own or any city you pick — or **UTC** with the date, which patches and events are announced in. Amber = local evening, blue = night (by the clock, not live load) | — |
