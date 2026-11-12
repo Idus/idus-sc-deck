@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PLAY · Launch · Idus SC Deck</title><link rel="stylesheet" href="pi.css"></head>
+<body><div class="layout">
+<aside class="about">
+<header><span class="eyebrow">Idus SC Deck · v1.0</span>
+<div class="titlerow"><span class="tab">PLAY</span><h1>Launch</h1></div></header>
+<p class="lede">Starts Star Citizen. While the game runs, the key turns green and counts your session time.</p>
+
+<footer data-idus></footer>
+</aside>
+<main class="settings">
+<section class="group"><div class="head">Start with</div>
+<div class="tiles"><div class="tile"><span class="tile-label">Starts via</span><span class="tile-value mono" id="via">—</span></div><div class="tile"><span class="tile-label">Game folder</span><span class="tile-value mono" id="pfx">—</span></div></div>
+<label>Custom command — optional, overrides the above
+  <input type="text" data-setting="command" placeholder="e.g. lutris lutris:rungame/star-citizen"></label>
+<label>Game folder (Wine prefix) — leave empty to detect it from LUG Helper
+  <input type="text" data-setting="prefix" placeholder="auto"></label>
+<p class="hint">With <a href="https://github.com/Idus/idus-sc-toolbox">Idus SC Toolbox</a> installed the key runs <code>idus-sc-toolbox --launch</code>, which checks for a newer RSI Launcher first. Without it the key runs LUG Helper's <code>sc-launch.sh</code>.</p>
+</section>
+<section class="group"><div class="head">Look</div>
+<label>Game channel
+  <select data-setting="channel" data-default="LIVE">
+    <option>LIVE</option><option>PTU</option><option>EPTU</option><option>TECH-PREVIEW</option><option>HOTFIX</option>
+  </select></label>
+<label>Own image above the button — optional PNG/SVG path
+  <input type="text" data-setting="image" placeholder="/home/you/Pictures/emblem.png"></label>
+<p class="hint">Leave empty for the Idus rocket. Use only images you have the right to use.</p>
+</section>
+</main>
+</div>
+<script src="pi.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const ago = (ms) => { if (!ms) return "never"; const s = Math.round((Date.now() - ms) / 1000); return s < 90 ? s + " s ago" : Math.round(s / 60) + " min ago"; };
+PI.onInfo((i) => { $("pfx").textContent = i.prefix || "—"; $("via").textContent = PI.settings.command ? "custom command" : (i.toolbox ? "Idus SC Toolbox (--launch)" : "LUG sc-launch.sh"); });
+document.addEventListener("pi-settings", () => PI.send({ cmd: "info" }));
+</script></body></html>

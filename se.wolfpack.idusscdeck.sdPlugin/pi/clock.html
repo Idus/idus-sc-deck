@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TIME · Server Clock · Idus SC Deck</title><link rel="stylesheet" href="pi.css"></head>
+<body><div class="layout">
+<aside class="about">
+<header><span class="eyebrow">Idus SC Deck · v1.0</span>
+<div class="titlerow"><span class="tab">TIME</span><h1>Server Clock</h1></div></header>
+<p class="lede">The time where the servers are — and UTC, which patches and events are announced in. Put one key per region side by side.</p>
+
+<footer data-idus></footer>
+</aside>
+<main class="settings">
+<section class="group"><div class="head">Region</div>
+<label>Time zone
+  <select data-setting="zone" data-default="us-west">
+    <optgroup label="Server regions — west to east">
+      <option value="us-west" data-tz="America/Los_Angeles">US W — US West (Pacific)</option>
+      <option value="us-east" data-tz="America/New_York">US E — US East (Eastern)</option>
+      <option value="utc">UTC — patches and events</option>
+      <option value="eu" data-tz="Europe/Brussels">EU — Europe (servers in Belgium)</option>
+      <option value="asia" data-tz="Asia/Tokyo">ASIA — Asia (Tokyo time)</option>
+      <option value="aus" data-tz="Australia/Sydney">AUS — Australia (Sydney)</option>
+    </optgroup>
+    <optgroup label="Other">
+      <option value="local" data-tz="local">LOCAL — my own time</option>
+      <option value="custom">Pick a city…</option>
+    </optgroup>
+  </select></label>
+<div id="custom" style="display:none;gap:10px">
+<div class="row2">
+<label>Part of the world<select id="area"></select></label>
+<label>City<select id="city" data-setting="customTz"></select></label>
+</div>
+<label>Label on the key (up to 9 characters)<input type="text" id="label" data-setting="customLabel" maxlength="9" placeholder="the city name"></label></div>
+<label class="check"><input type="checkbox" data-setting="h12"> 12-hour clock (am/pm on the bottom line)</label>
+</section>
+<section class="group"><div class="head">Colours</div>
+<div class="legend"><span><b class="warn">17–22</b> evening — usually the busiest time</span><span><b class="soft">23–06</b> night — usually quiet</span><span><b>07–16</b> daytime</span></div>
+<p class="hint">The colour comes from the clock in that region, not from live server data — RSI does not publish load per region. The UTC key always stays white and shows the date instead.</p></section>
+</main>
+</div>
+<script src="pi.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const ago = (ms) => { if (!ms) return "never"; const s = Math.round((Date.now() - ms) / 1000); return s < 90 ? s + " s ago" : Math.round(s / 60) + " min ago"; };
+// UTC offset of a zone right now, e.g. "UTC+1" (follows summer time)
+const offset = (tz) => {
+  try {
+    const p = new Intl.DateTimeFormat("en-GB", { timeZone: tz, timeZoneName: "shortOffset" }).formatToParts(new Date());
+    const v = (p.find((x) => x.type === "timeZoneName") || {}).value || "";
+    return v.replace("GMT", "UTC").replace("-", "−").replace(/^UTC$/, "UTC±0");
+  } catch (e) { return ""; }
+};
+const localTz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+document.querySelectorAll("option[data-tz]").forEach((o) => {
+  const o2 = offset(o.dataset.tz === "local" ? localTz : o.dataset.tz);
+  if (o2) o.textContent += " · " + o2;
+});
+
+// Every time zone the system knows, as part of the world → city (no IANA codes to type)
+let zones = [];
+try { zones = Intl.supportedValuesOf("timeZone"); } catch (e) {}
+const AREA = { America: "Americas", Europe: "Europe", Asia: "Asia", Australia: "Australia", Pacific: "Pacific", Africa: "Africa", Atlantic: "Atlantic", Indian: "Indian Ocean", Antarctica: "Antarctica", Arctic: "Arctic" };
+const byArea = {};
+for (const z of zones) {
+  const [area, ...rest] = z.split("/");
+  if (!AREA[area] || !rest.length) continue;
+  const city = rest.reverse().map((x) => x.replace(/_/g, " ")).join(", ");
+  (byArea[area] = byArea[area] || []).push({ tz: z, city });
+}
+const areaSel = $("area"), citySel = $("city");
+if (!zones.length) {
+  // Very old webview without the zone list: fall back to typing the code
+  const inp = document.createElement("input");
+  inp.type = "text"; inp.id = "city"; inp.dataset.setting = "customTz"; inp.placeholder = "e.g. America/Chicago";
+  citySel.replaceWith(inp); areaSel.closest("label").style.display = "none";
+} else {
+  Object.keys(AREA).filter((a) => byArea[a]).forEach((a) => areaSel.add(new Option(AREA[a], a)));
+}
+function fillCities(area) {
+  const list = (byArea[area] || []).slice().sort((x, y) => x.city.localeCompare(y.city));
+  citySel.innerHTML = "";
+  for (const c of list) citySel.add(new Option(c.city + " · " + offset(c.tz), c.tz));
+}
+function showTz(tz) {
+  if (!zones.length) return;
+  const area = (tz || "").split("/")[0];
+  if (byArea[area]) { areaSel.value = area; fillCities(area); citySel.value = tz; }
+  const city = (tz || "").split("/").pop().replace(/_/g, " ").toUpperCase();
+  $("label").placeholder = city ? city.slice(0, 9) + " (from the city)" : "the city name";
+}
+areaSel.addEventListener("change", () => {
+  fillCities(areaSel.value);
+  citySel.dispatchEvent(new Event("change"));
+});
+function sync() {
+  const custom = PI.settings.zone === "custom";
+  $("custom").style.display = custom ? "grid" : "none";
+  if (!custom) return;
+  if (!PI.settings.customTz) {
+    // First time: start on your own city so the key shows something sensible right away
+    const known = zones.includes(localTz) && byArea[localTz.split("/")[0]];
+    showTz(known ? localTz : "Europe/Brussels");
+    if (zones.length && citySel.value) citySel.dispatchEvent(new Event("change"));
+    return;
+  }
+  showTz(PI.settings.customTz);
+}
+document.addEventListener("pi-settings", sync); sync();
+</script></body></html>

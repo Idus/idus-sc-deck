@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TOOL · Toolbox Action · Idus SC Deck</title><link rel="stylesheet" href="pi.css"></head>
+<body><div class="layout">
+<aside class="about">
+<header><span class="eyebrow">Idus SC Deck · v1.0</span>
+<div class="titlerow"><span class="tab">TOOL</span><h1>Toolbox Action</h1></div></header>
+<p class="lede">Runs one Idus SC Toolbox action from the key.</p>
+<div class="tbbox">
+<div class="tbhead"><b>Idus SC Toolbox</b><span class="pill" id="tbPill">checking…</span></div>
+<p class="hint">A separate, free app for Star Citizen on <b>Linux</b> (KDE Plasma 6), a companion to the LUG Helper. The TOOL keys run its actions, so it has to be installed on this PC — all other keys work without it.</p>
+<p class="hint"><a href="https://github.com/Idus/idus-sc-toolbox">Idus SC Toolbox on GitHub</a> · <a href="#" onclick="PI.send({ cmd: 'info' }); return false;">check again</a></p>
+<p class="hint">Built on the Star Citizen <b>Linux Users Group</b>: <a href="https://github.com/starcitizen-lug/lug-helper">LUG Helper</a> · <a href="https://github.com/starcitizen-lug/knowledge-base">knowledge base</a> · <a href="https://starcitizen-lug.github.io">wiki</a> · <a href="https://robertsspaceindustries.com/orgs/LUG">LUG on RSI</a></p>
+</div>
+<footer data-idus></footer>
+</aside>
+<main class="settings">
+<section class="group"><div class="head">Action</div>
+<div id="tbInstall" class="sub install" hidden>
+<p class="hint"><b class="warn">Install Idus SC Toolbox first.</b> On Arch / CachyOS, paste this in a terminal:</p>
+<div class="cmd"><pre id="tbCmd">sudo pacman -S --needed python-gobject gtk4
+d=$(mktemp -d) &amp;&amp; cd "$d" &amp;&amp; for f in idus-sc-toolbox.py install-idus-sc-toolbox.sh idus-sc-toolbox.png; do curl -fsSLO "https://github.com/Idus/idus-sc-toolbox/releases/latest/download/$f"; done &amp;&amp; bash install-idus-sc-toolbox.sh</pre></div>
+<div class="btnrow"><button class="btn primary" type="button" data-copy-pre="tbCmd">Copy install command</button></div>
+<p class="hint">Other distributions: install the GTK4 Python bindings (python-gobject / python3-gi and gtk4), then run the second line.</p>
+</div>
+<label>The key runs
+  <select data-setting="tbAction" data-default="kill">
+    <option value="kill">Kill SC + launcher + wineserver ⚠</option>
+    <option value="restart">Restart launcher ⚠</option>
+    <option value="patch">Patch / verify launcher ⚠</option>
+    <option value="backup">Back up keybinds + cfg</option>
+    <option value="restore">Restore latest backup ⚠</option>
+    <option value="shaders">Clear shader cache</option>
+    <option value="starstrings">Update StarStrings</option>
+    <option value="fixwindows">Fix windows (main screen)</option>
+  </select></label>
+<label>Game channel
+  <select data-setting="channel" data-default="LIVE">
+    <option>LIVE</option><option>PTU</option><option>EPTU</option><option>TECH-PREVIEW</option><option>HOTFIX</option>
+  </select></label>
+<p class="hint">⚠ = takes three presses. The channel matters for shaders and StarStrings.</p>
+<p class="hint">StarStrings shows the game version the installed strings were made for and the install date, e.g. "4.10 · 8 Nov". Green dot = no newer release on GitHub, amber = a newer release exists or the strings are for an older patch.</p>
+</section>
+<section class="group wide"><div class="head">What the actions do</div>
+<div class="acts"><div class="act" data-act="kill" role="button" tabindex="0"><b>Kill SC ⚠</b><span>Force-stops Star Citizen, the RSI Launcher and Wine (wineserver) in the game folder — for a game that hangs.</span></div><div class="act" data-act="restart" role="button" tabindex="0"><b>Restart launcher ⚠</b><span>Stops everything, then starts the RSI Launcher again with LUG's sc-launch.sh.</span></div><div class="act" data-act="patch" role="button" tabindex="0"><b>Patch / verify ⚠</b><span>Like restart, but on the PATCH runner — for game updates and Verify. Needs patch mode in sc-launch.sh (see the Toolbox README).</span></div><div class="act" data-act="backup" role="button" tabindex="0"><b>Back up</b><span>Saves keybinds and settings (the user folder and USER.cfg of every channel) plus sc-launch.sh to a dated backup.</span></div><div class="act" data-act="restore" role="button" tabindex="0"><b>Restore ⚠</b><span>Puts back the newest backup. Only when the game is closed, and it takes a safety copy of the current state first.</span></div><div class="act" data-act="shaders" role="button" tabindex="0"><b>Clear shaders</b><span>Deletes the shader cache for the channel (game closed). The next launch takes longer while it rebuilds.</span></div><div class="act" data-act="starstrings" role="button" tabindex="0"><b>StarStrings</b><span>Downloads the newest StarStrings (MrKraken) from GitHub into the channel.</span></div><div class="act" data-act="fixwindows" role="button" tabindex="0"><b>Fix windows</b><span>Centres the RSI Launcher and moves Star Citizen to the main screen (KDE).</span></div></div>
+<p class="hint">Click a line to pick it.</p>
+</section>
+</main>
+</div>
+<script src="pi.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const ago = (ms) => { if (!ms) return "never"; const s = Math.round((Date.now() - ms) / 1000); return s < 90 ? s + " s ago" : Math.round(s / 60) + " min ago"; };
+PI.onInfo((i) => {
+  $("tbInstall").hidden = !!i.toolbox;
+  $("tbPill").textContent = i.toolbox ? "● installed" : "○ not installed";
+  $("tbPill").className = "pill " + (i.toolbox ? "ok" : "");
+});
+const actSel = document.querySelector('select[data-setting="tbAction"]');
+function markAct() { const v = PI.settings.tbAction || actSel.value || "kill"; document.querySelectorAll(".act").forEach((el) => el.classList.toggle("on", el.dataset.act === v)); }
+document.querySelectorAll(".act").forEach((el) => {
+  const pick = () => { actSel.value = el.dataset.act; actSel.dispatchEvent(new Event("change")); };
+  el.addEventListener("click", pick);
+  el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+});
+document.addEventListener("pi-settings", markAct); markAct();
+</script></body></html>

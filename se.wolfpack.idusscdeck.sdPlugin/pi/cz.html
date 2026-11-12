@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CZ · Exec Hangar · Idus SC Deck</title><link rel="stylesheet" href="pi.css"></head>
+<body><div class="layout">
+<aside class="about">
+<header><span class="eyebrow">Idus SC Deck · v1.0</span>
+<div class="titlerow"><span class="tab">CZ</span><h1>Exec Hangar</h1></div></header>
+<p class="lede">The executive hangar on one key: open or closed, countdown, the clock time of the next change and the five door lights.</p>
+
+<footer data-idus></footer>
+</aside>
+<main class="settings">
+<section class="group"><div class="head">Timer source</div>
+<label>Primary timer
+  <select data-setting="primary" data-default="cztimer">
+    <option value="cztimer">cztimer.com (recommended)</option>
+    <option value="xyxyll">exec.xyxyll.com</option>
+  </select></label>
+<p class="hint">The other one is the secondary. If neither answers, the key uses the last good copy on disk, then built-in values. Syncs every 15 minutes; press the key to sync now.</p>
+<div class="tiles"><div class="tile"><span class="tile-label">Using</span><span class="tile-value mono" id="from">—</span></div><div class="tile"><span class="tile-label">Last sync</span><span class="tile-value mono" id="when">—</span></div></div>
+<button class="btn" type="button" onclick="PI.send({ cmd: 'resync' })">Sync now</button>
+</section>
+<section class="group"><div class="head">Lights</div>
+<div class="legend"><span><b class="error">●</b> red / <b class="ok">●</b> green — lit, as in game</span><span><b style="color:#5a6270">○</b> empty ring — dark</span>
+<span>Closed: five red, one turns green every 24 min. Open: five green, one goes dark every 12 min; the last 5 min are CLOSING.</span></div></section>
+<section class="group"><div class="head">Credits</div>
+<p class="hint">Cycle math and light table adapted from <a href="https://github.com/NyleGarcia/cztimer-opendeck">CZ Timer for OpenDeck</a> by Nyle Garcia (MIT). Timer data from <a href="https://cztimer.com/">cztimer.com</a> and <a href="https://exec.xyxyll.com/">exec.xyxyll.com</a> — thank you!</p></section>
+</main>
+</div>
+<script src="pi.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const ago = (ms) => { if (!ms) return "never"; const s = Math.round((Date.now() - ms) / 1000); return s < 90 ? s + " s ago" : Math.round(s / 60) + " min ago"; };
+PI.onInfo((i) => { $("from").textContent = i.from || "—"; $("when").textContent = ago(i.syncedAt) + (i.error ? " · " + i.error : ""); $("when").className = "tile-value mono " + (i.error ? "warn" : ""); });
+</script></body></html>

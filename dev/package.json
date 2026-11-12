@@ -1,0 +1,6 @@
+{
+  "name": "idus-sc-deck-dev",
+  "private": true,
+  "description": "Test tools for Idus SC Deck (not part of the plugin). npm install here, then see dev/README.md.",
+  "devDependencies": { "ws": "8.18.0" }
+}

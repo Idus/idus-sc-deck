@@ -1,0 +1,133 @@
+{
+  "Name": "Idus SC Deck",
+  "UUID": "se.wolfpack.idusscdeck",
+  "Version": "1.0",
+  "Author": "Idus",
+  "Description": "Star Citizen keys for OpenDeck on Linux, grouped as TIME, CZ, STAT, LOG, PLAY and TOOL: server-region clocks and UTC, a one-key Contested Zone hangar timer, STAT views (RSI server status, game version vs newest, funding, VRAM), Game.log views (server/shard, Armistice zone, 30K counter), a launch key and Idus SC Toolbox actions. Unofficial fan project, not affiliated with Cloud Imperium Games.",
+  "URL": "https://github.com/Idus/idus-sc-deck",
+  "Icon": "imgs/plugin",
+  "Category": "Idus SC Deck",
+  "CategoryIcon": "imgs/category",
+  "SDKVersion": 2,
+  "CodePath": "plugin.js",
+  "CodePathLin": "plugin.js",
+  "Software": {
+    "MinimumVersion": "6.5"
+  },
+  "OS": [
+    {
+      "Platform": "linux",
+      "MinimumVersion": "0"
+    }
+  ],
+  "Actions": [
+    {
+      "Name": "TIME · Server Clock",
+      "UUID": "se.wolfpack.idusscdeck.clock",
+      "Icon": "imgs/actions/clock",
+      "Tooltip": "Time in a server region (US W, US E, EU, Asia, Australia, your own or any city) or UTC with the date — patches and events are announced in UTC. Amber = local evening, blue = night (by the clock, not live load).",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "PropertyInspectorPath": "pi/clock.html",
+      "States": [
+        {
+          "Image": "imgs/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "Name": "CZ · Exec Hangar",
+      "UUID": "se.wolfpack.idusscdeck.cz",
+      "Icon": "imgs/actions/cz",
+      "Tooltip": "Contested Zone executive hangar on one key: open/closed, countdown, the clock time of the next change and the five door lights. Press to re-sync.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "PropertyInspectorPath": "pi/cz.html",
+      "States": [
+        {
+          "Image": "imgs/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "Name": "STAT · Status & Stats",
+      "UUID": "se.wolfpack.idusscdeck.servers",
+      "Icon": "imgs/actions/servers",
+      "Tooltip": "One key, four views: RSI server status (all or one service — press opens the status page), installed game version vs the newest release notes, crowdfunding total, or GPU memory in use.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "PropertyInspectorPath": "pi/servers.html",
+      "States": [
+        {
+          "Image": "imgs/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "Name": "LOG · Game.log",
+      "UUID": "se.wolfpack.idusscdeck.logserver",
+      "Icon": "imgs/actions/logserver",
+      "Tooltip": "Live from your Game.log, one view per key: server (region + shard + time there), region, shard, Armistice zone, or 30K disconnects this session.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "PropertyInspectorPath": "pi/logserver.html",
+      "States": [
+        {
+          "Image": "imgs/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "Name": "PLAY · Launch",
+      "UUID": "se.wolfpack.idusscdeck.launch",
+      "Icon": "imgs/actions/launch",
+      "Tooltip": "Starts Star Citizen (through Idus SC Toolbox if installed, else LUG's sc-launch.sh). Shows RUNNING and the session time.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "PropertyInspectorPath": "pi/launch.html",
+      "States": [
+        {
+          "Image": "imgs/key",
+          "ShowTitle": false
+        }
+      ]
+    },
+    {
+      "Name": "TOOL · Toolbox Action",
+      "UUID": "se.wolfpack.idusscdeck.toolbox",
+      "Icon": "imgs/actions/toolbox",
+      "Tooltip": "Runs an Idus SC Toolbox action: kill, restart or patch the launcher, backup, restore, shaders, StarStrings, fix windows. Dangerous ones take three presses (Really? → Sure? → run).",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "PropertyInspectorPath": "pi/toolbox.html",
+      "States": [
+        {
+          "Image": "imgs/key",
+          "ShowTitle": false
+        }
+      ]
+    }
+  ]
+}

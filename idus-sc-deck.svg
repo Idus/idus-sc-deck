@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<rect x="16" y="16" width="480" height="480" rx="96" fill="#0f1115" stroke="#2a2f3a" stroke-width="6"/>
+<text x="256" y="138" text-anchor="middle" font-family="Saira" font-weight="700" font-size="104" letter-spacing="4" fill="#ff9a3c">IDUS</text>
+<g transform="translate(256 262) rotate(45) scale(3.1)"><path d="M-9 4 L-18 19 L-9 16 Z M9 4 L18 19 L9 16 Z" fill="#9fb4d4"/><path d="M-5 16 L0 28 L5 16 Z" fill="#ffd9a0"/><path d="M0 -32 C10 -21 11 -6 9 16 L-9 16 C-11 -6 -10 -21 0 -32 Z" fill="#e8eaed"/><circle cx="0" cy="-11" r="4.5" fill="#0f1115"/></g>
+<g fill="#ff9a3c"><circle cx="150" cy="300" r="7"/><circle cx="362" cy="300" r="7" fill="#46d160"/></g>
+<text x="256" y="452" text-anchor="middle" font-family="Saira" font-weight="700" font-size="72" letter-spacing="6" fill="#ff9a3c">SC DECK</text></svg>

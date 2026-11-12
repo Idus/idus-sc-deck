@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LOG · Game.log · Idus SC Deck</title><link rel="stylesheet" href="pi.css"></head>
+<body><div class="layout">
+<aside class="about">
+<header><span class="eyebrow">Idus SC Deck · v1.0</span>
+<div class="titlerow"><span class="tab">LOG</span><h1>Game.log</h1></div></header>
+<p class="lede">Live facts from Star Citizen's own Game.log on this PC. Pick what this key shows — put several LOG keys side by side for several views.</p>
+
+<footer data-idus></footer>
+</aside>
+<main class="settings">
+<section class="group"><div class="head">Show</div>
+<label>On the key
+  <select data-setting="show" data-default="zone">
+    <option value="server">SERVER — region + shard + time there</option>
+    <option value="region">REGION — region only, big</option>
+    <option value="shard">SHARD — shard number + full shard name</option>
+    <option value="zone">ZONE — inside or outside an Armistice zone</option>
+    <option value="30k">30K — unexpected disconnects this session</option>
+  </select></label>
+<p class="hint" data-show="server region shard">Green lamp = you are in the game world (PU). Grey = in the menu or the game is not running. Region names match the TIME keys: EU, US E, US W, ASIA, AUS.</p>
+<p class="hint" data-show="zone">Green frame inside (weapons locked), amber outside (weapons hot), grey when you are not in the game world. Right after you join a server it shows "no zone yet" until the first change.</p>
+<p class="hint" data-show="30k">Green at 0, amber from 1, red from 3. Not counted: your own quit (30016), AFK kick (30028) and the routine menu teardown (30010). Starts over when the game restarts.</p>
+</section><section class="group"><div class="head">Game.log</div>
+<div class="tiles"><div class="tile"><span class="tile-label">File</span><span class="tile-value mono" id="log">—</span></div><div class="tile"><span class="tile-label">Last shard</span><span class="tile-value mono" id="shard">—</span></div></div>
+<label>Game channel
+  <select data-setting="channel" data-default="LIVE">
+    <option>LIVE</option><option>PTU</option><option>EPTU</option><option>TECH-PREVIEW</option><option>HOTFIX</option>
+  </select></label>
+<label>Game folder (Wine prefix) — leave empty to detect it from LUG Helper
+  <input type="text" data-setting="prefix" placeholder="auto"></label>
+<p class="hint">Read-only, on this PC only — nothing is sent anywhere. The game replaces Game.log at every start; the key follows the new one automatically.</p>
+</section>
+</main>
+</div>
+<script src="pi.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const ago = (ms) => { if (!ms) return "never"; const s = Math.round((Date.now() - ms) / 1000); return s < 90 ? s + " s ago" : Math.round(s / 60) + " min ago"; };
+PI.onInfo((i) => { $("log").textContent = i.log || "not found — check the game folder"; $("shard").textContent = i.shard || "none yet"; });
+</script></body></html>

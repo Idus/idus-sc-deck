@@ -1,0 +1,92 @@
+/* Idus SC Deck settings panels — Idus palette (dark, canonical) */
+:root {
+  --bg: #16181d; --surface: #1e222b; --deep: #0f1115; --line: #2a2f3a;
+  --fg: #e8eaed; --muted: #8a93a3; --soft: #9fb4d4; --dim: #5a6270;
+  --accent: #ff9a3c; --title: #ffd9a0; --ok: #46d160; --warn: #ffb13c; --error: #e0525b;
+  --btn: #262b36; --btn-hover: #2f3644;
+  --f-display: "Saira", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Noto Sans", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", "DejaVu Sans Mono", monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.5 var(--f-body); }
+/* OpenDeck shows the panel full width but only 256–384 px high: description card on the left,
+   setting groups in columns beside it. One column only when the panel is narrow. */
+.layout { display: grid; grid-template-columns: minmax(230px, 300px) minmax(0, 1fr); gap: 12px; padding: 10px 12px 12px; align-items: start; }
+.about { display: grid; gap: 7px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; }
+.settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; align-items: start; min-width: 0; }
+@media (max-width: 620px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.eyebrow { font: 600 11px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); }
+h1 { font: 700 21px/1.1 var(--f-display); color: var(--title); margin: 4px 0 0; }
+.lede { margin: 0; color: var(--fg); font-size: 13.5px; line-height: 1.45; }
+.group { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; display: grid; gap: 9px; min-width: 0; }
+.head { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.head::before { content: "●"; color: var(--accent); font-size: 10px; }
+label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+select, input[type=text] {
+  width: 100%; font: 14px var(--f-body); color: var(--fg); background: var(--deep);
+  border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px;
+}
+input[type=text] { font-family: var(--f-mono); font-size: 13px; }
+.check { display: flex; gap: 8px; align-items: center; color: var(--soft); }
+select:focus-visible, input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn { font: 500 13.5px/1 var(--f-body); color: var(--fg); background: var(--btn); border: 1px solid var(--line);
+  border-radius: 8px; padding: 9px 14px; cursor: pointer; justify-self: start; }
+.btn:hover { background: var(--btn-hover); }
+.btn.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+.hint { color: var(--muted); font-size: 12.5px; margin: 0; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; }
+.tile { background: var(--deep); border: 1px solid var(--line); border-radius: 10px; padding: 7px 9px; display: grid; gap: 2px; min-width: 0; }
+.tile-label { font: 500 10.5px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tile-value { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13.5px; }
+.tile-value.mono { font-family: var(--f-mono); font-size: 12px; font-weight: 500; }
+.ok { color: var(--ok); } .warn { color: var(--warn); } .error { color: var(--error); } .soft { color: var(--soft); }
+.legend { display: grid; gap: 3px; font-size: 12.5px; }
+.legend b { font-family: var(--f-mono); font-weight: 600; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+footer { color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); padding-top: 8px; line-height: 1.6; }
+footer .fine { font-size: 11px; color: var(--dim); }
+footer .ref { font-family: var(--f-mono); }
+/* family tab next to the title — the same orange tab as on the keys */
+.titlerow { display: flex; align-items: center; gap: 9px; margin-top: 3px; }
+.titlerow h1 { margin: 0; }
+.tab { font: 700 12px/1 var(--f-mono); letter-spacing: .08em; color: var(--accent); border: 1.5px solid var(--accent);
+  background: var(--surface); border-radius: 7px; padding: 5px 8px; }
+code { font-family: var(--f-mono); font-size: 12.5px; color: var(--soft); }
+.row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 10px; }
+@media (max-width: 300px) { .row2 { grid-template-columns: minmax(0, 1fr); } }
+optgroup { color: var(--muted); font-style: normal; }
+option { color: var(--fg); }
+/* OpenDeck's webview (WebKitGTK) draws native grey GTK selects unless told not to */
+select { -webkit-appearance: none; appearance: none; padding-right: 30px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23ff9a3c' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center; }
+select:hover, input[type=text]:hover { border-color: #3a4150; }
+select option, select optgroup { background: var(--deep); }
+input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; margin: 0; }
+[hidden] { display: none !important; }
+.sub { display: grid; gap: 9px; }
+.acts { display: grid; gap: 3px; }
+.act { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 10px; padding: 5px 8px; border: 1px solid transparent; border-radius: 8px;
+  font-size: 12.5px; line-height: 1.4; color: var(--muted); cursor: pointer; }
+.act b { color: var(--fg); font-weight: 600; }
+.act:hover { background: var(--deep); }
+.act.on { background: var(--deep); border-color: var(--accent); }
+.act.on b { color: var(--title); }
+.act:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font: 500 12px/1 var(--f-body); padding: 4px 9px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--deep); color: var(--muted); margin-left: auto; }
+.pill.ok { color: var(--ok); border-color: var(--ok); }
+.head.small { font-size: 13px; margin-top: 2px; }
+.cmd { display: flex; gap: 8px; align-items: stretch; min-width: 0; }
+.cmd pre { flex: 1; min-width: 0; margin: 0; overflow-x: auto; padding: 8px 10px; border-radius: 8px; background: var(--deep);
+  border: 1px solid var(--line); font: 12px/1.5 var(--f-mono); white-space: pre; color: var(--fg); }
+.btn.done { background: var(--ok); border-color: var(--ok); color: var(--bg); }
+.btnrow { display: flex; gap: 8px; flex-wrap: wrap; }
+@media (min-width: 900px) { .settings .wide { grid-column: span 2; } }
+.tbbox { display: grid; gap: 6px; border-top: 1px solid var(--line); padding-top: 8px; }
+.tbhead { display: flex; align-items: center; gap: 8px; font-size: 13.5px; }
+.tbbox .hint b { color: var(--fg); font-weight: 600; }
+.install { background: var(--deep); border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; }

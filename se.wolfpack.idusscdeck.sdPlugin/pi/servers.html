@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STAT · Status & Stats · Idus SC Deck</title><link rel="stylesheet" href="pi.css"></head>
+<body><div class="layout">
+<aside class="about">
+<header><span class="eyebrow">Idus SC Deck · v1.0</span>
+<div class="titlerow"><span class="tab">STAT</span><h1>Status & Stats</h1></div></header>
+<p class="lede">Facts about the game, RSI and your PC on one key. Pick what this key shows — put several STAT keys side by side for several views.</p>
+
+<footer data-idus></footer>
+</aside>
+<main class="settings">
+<section class="group"><div class="head">Show</div>
+<label>On the key
+  <select data-setting="show" data-default="status">
+    <option value="status">STATUS — RSI server status</option>
+    <option value="version">VERSION — installed game vs the newest</option>
+    <option value="funding">FUNDING — crowdfunding total</option>
+    <option value="vram">VRAM — GPU memory in use</option>
+  </select></label>
+<div data-show="status" class="sub">
+<label>Which service
+  <select data-setting="component" data-default="all">
+    <option value="all">RSI — all three on one key</option>
+    <option value="Platform">PLAT — Platform (website, login, launcher)</option>
+    <option value="Persistent Universe">PU — Persistent Universe</option>
+    <option value="Arena Commander">AC — Arena Commander</option>
+  </select></label>
+<p class="hint">Press the key to open RSI's status page. Checked every two minutes.</p></div>
+<div data-show="version" class="sub"><label>Game channel
+  <select data-setting="channel" data-default="LIVE">
+    <option>LIVE</option><option>PTU</option><option>EPTU</option><option>TECH-PREVIEW</option><option>HOTFIX</option>
+  </select></label>
+<label class="check"><input type="checkbox" data-setting="openNotes" data-default="true"> Press opens the release notes of the newest version</label>
+<p class="hint">Pressing always marks the version as seen (the orange lamp goes out).</p></div>
+<p class="hint" data-show="funding">The total from RSI's public crowdfunding stats, refreshed every 15 minutes; the bottom line is what came in yesterday. Press to refresh.</p>
+<p class="hint" data-show="vram">GPU memory in use and the biggest other program using it — handy before you launch. Press to refresh.</p>
+</section>
+
+<section class="group" data-show="status"><div class="head">Colours</div>
+<div class="legend"><span><b class="ok">●</b> operational</span><span><b class="warn">●</b> degraded or partial outage</span><span><b class="error">●</b> major outage</span><span><b class="soft">●</b> maintenance</span></div>
+<p class="hint">An open incident's title shows at the bottom of a single-service key.</p>
+<div class="tiles"><div class="tile"><span class="tile-label">Last check</span><span class="tile-value mono" id="statusErr">—</span></div></div>
+<p class="hint">Data: <a href="https://status.robertsspaceindustries.com/">status.robertsspaceindustries.com</a></p></section>
+
+<section class="group" data-show="version"><div class="head">Installed and newest</div><div class="tiles"><div class="tile"><span class="tile-label">Installed · build</span><span class="tile-value mono" id="ver">—</span></div><div class="tile"><span class="tile-label">Newest on RSI</span><span class="tile-value mono" id="latest">—</span></div><div class="tile"><span class="tile-label">Game folder</span><span class="tile-value mono" id="pfx">—</span></div></div>
+<div class="legend"><span><b class="ok">●</b> up to date — same version as the newest release notes</span><span><b class="warn">●</b> a newer version is out — the launcher will download it</span><span><b>no dot</b> unknown — offline, or EPTU / Tech-Preview</span></div>
+<p class="hint">Only the RSI Launcher knows for certain — it asks RSI with your login. This key reads the titles in RSI's public <a href="https://robertsspaceindustries.com/spectrum/community/SC/forum/190048">Patch Notes forum</a> every 30 minutes instead: LIVE is compared by version number, PTU by build number. A LIVE hotfix that keeps the same version number is not seen.</p>
+<label>Game folder (Wine prefix) — leave empty to detect it from LUG Helper
+  <input type="text" data-setting="prefix" placeholder="auto"></label></section>
+
+<section class="group" data-show="funding"><div class="head">Source</div><div class="tiles"><div class="tile"><span class="tile-label">Last check</span><span class="tile-value mono" id="fundErr">—</span></div></div>
+<p class="hint">Data: RSI's public crowdfunding stats (robertsspaceindustries.com).</p></section>
+
+<section class="group" data-show="vram"><div class="head">How it works</div><div class="tiles"><div class="tile"><span class="tile-label">nvidia-smi</span><span class="tile-value mono" id="vramOk">—</span></div></div>
+<p class="hint">Reads <code>nvidia-smi</code> every five seconds (NVIDIA cards only). The bar turns amber above 85 %. Star Citizen itself is left out of the "biggest other" line.</p></section>
+</main>
+</div>
+<script src="pi.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const ago = (ms) => { if (!ms) return "never"; const s = Math.round((Date.now() - ms) / 1000); return s < 90 ? s + " s ago" : Math.round(s / 60) + " min ago"; };
+const okTile = (id, err) => { $(id).textContent = err ? "error: " + err : "ok"; $(id).className = "tile-value mono " + (err ? "error" : "ok"); };
+PI.onInfo((i) => {
+  okTile("statusErr", i.statusError); okTile("fundErr", i.fundingError);
+  $("vramOk").textContent = i.vramOk ? "found" : "not found — NVIDIA only"; $("vramOk").className = "tile-value mono " + (i.vramOk ? "ok" : "warn");
+  $("pfx").textContent = i.prefix || "—";
+  $("ver").textContent = i.game && i.game.version ? i.game.version + " · " + i.game.build : "not found in this channel";
+  const l = i.latest;
+  $("latest").textContent = l ? l.version + (l.build ? " · " + l.build : "") + (i.compare === "behind" ? " — update" : i.compare === "latest" ? " — you have it" : "") : (i.releasesError ? "error: " + i.releasesError : "only for LIVE and PTU");
+  $("latest").className = "tile-value mono " + (i.compare === "behind" ? "warn" : i.compare === "latest" ? "ok" : "");
+});
+document.addEventListener("pi-settings", () => PI.send({ cmd: "info" }));
+</script></body></html>
