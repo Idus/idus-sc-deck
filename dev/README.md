@@ -2,6 +2,7 @@
 
 ```bash
 cd dev && npm install                 # ws, esbuild, Elgato SDK + CLI; Playwright must be installed separately
+                                      # on a network share (no symlinks): npm install --no-bin-links
 node make-icons.cjs                   # action glyphs, key image, plugin icon (needs Playwright + Saira font)
 node make-pi.cjs                      # writes ../se.wolfpack.idusscdeck.sdPlugin/pi/*.html
 node fake-opendeck.cjs /tmp/run 10    # starts the plugin like OpenDeck, shows every key, presses some

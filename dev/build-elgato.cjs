@@ -15,7 +15,6 @@ const ID = "se.wolfpack.idusscdeck";
 const SRC = path.join(ROOT, `${ID}.sdPlugin`);
 const OUTDIR = path.join(ROOT, "build", "elgato");
 const PLUG = path.join(OUTDIR, `${ID}.sdPlugin`);
-const BIN = path.join(__dirname, "node_modules", ".bin");
 
 const src = JSON.parse(fs.readFileSync(path.join(SRC, "manifest.json"), "utf8"));
 // 1.0 -> 1.0.0.<build>; ELGATO_BUILD=n bumps the last part so a test build installs over the previous one
@@ -88,6 +87,8 @@ const manifest = {
       "## Elgato Stream Deck SDK\n\n@elgato/streamdeck — MIT License, Corsair Memory Inc. (bundled in bin/plugin.js).\n"));
 
   // validate + pack with Elgato's CLI
-  execFileSync(path.join(BIN, "streamdeck"), ["pack", PLUG, "-o", OUTDIR, "-f", "--no-update-check", "--no-file-list"], { stdio: "inherit" });
+  // run the CLI's script directly, so it also works after `npm install --no-bin-links` (network shares)
+  const cli = path.join(__dirname, "node_modules", "@elgato", "cli", "bin", "streamdeck.mjs");
+  execFileSync(process.execPath, [cli, "pack", PLUG, "-o", OUTDIR, "-f", "--no-update-check", "--no-file-list"], { stdio: "inherit" });
   console.log(`\n✓ ${path.relative(ROOT, OUTDIR)}/${ID}.streamDeckPlugin  (v${VERSION})`);
 })().catch((e) => { console.error(e); process.exit(1); });
