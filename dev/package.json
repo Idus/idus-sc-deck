@@ -1,6 +1,11 @@
 {
   "name": "idus-sc-deck-dev",
   "private": true,
-  "description": "Test tools for Idus SC Deck (not part of the plugin). npm install here, then see dev/README.md.",
-  "devDependencies": { "ws": "8.18.0" }
+  "description": "Test and build tools for Idus SC Deck (not part of the plugin). npm install here, then see dev/README.md.",
+  "devDependencies": {
+    "ws": "8.18.0",
+    "esbuild": "0.28.2",
+    "@elgato/streamdeck": "2.1.2",
+    "@elgato/cli": "1.10.4"
+  }
 }

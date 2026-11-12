@@ -9,7 +9,9 @@ const { spawn } = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const PLUGIN = path.join(__dirname, "..", "se.wolfpack.idusscdeck.sdPlugin");
+// FAKE_PLUGIN_DIR / FAKE_ENTRY: run another build, e.g. the Elgato one (build/elgato/…sdPlugin, bin/plugin.js)
+const PLUGIN = process.env.FAKE_PLUGIN_DIR ? path.resolve(process.env.FAKE_PLUGIN_DIR) : path.join(__dirname, "..", "se.wolfpack.idusscdeck.sdPlugin");
+const ENTRY = process.env.FAKE_ENTRY || "plugin.js";
 const out = path.resolve(process.argv[2] || "out");
 const seconds = Number(process.argv[3] || 16);
 fs.mkdirSync(out, { recursive: true });
@@ -117,8 +119,9 @@ wss.on("connection", (ws) => {
 });
 
 const info = { application: { font: "", language: "en", platform: "linux", platformVersion: "Rolling", version: "2.14.2" },
-  plugin: { uuid: ID, version: "1.0" }, devicePixelRatio: 2, colors: {}, devices: [] };
-const child = spawn(process.execPath, ["plugin.js", "-port", String(port), "-pluginUUID", ID, "-registerEvent", "registerPlugin",
+  plugin: { uuid: ID, version: "1.0" }, devicePixelRatio: 2, colors: {},
+  devices: [{ id: "dev", name: "Stream Deck XL", size: { columns: 8, rows: 4 }, type: 2 }] }; // Elgato's SDK needs a known device
+const child = spawn(process.execPath, [ENTRY, "-port", String(port), "-pluginUUID", ID, "-registerEvent", "registerPlugin",
   "-info", JSON.stringify(info)], { cwd: PLUGIN, env: process.env });
 let errs = "";
 child.stderr.on("data", (d) => { errs += d; });

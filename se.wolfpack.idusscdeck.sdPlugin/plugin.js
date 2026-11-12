@@ -5,7 +5,6 @@
 "use strict";
 
 const fs = require("node:fs");
-const os = require("node:os");
 const path = require("node:path");
 const sdk = require("./lib/sdk");
 const K = require("./lib/keys");
@@ -15,6 +14,7 @@ const cz = require("./lib/cz");
 const vram = require("./lib/vram");
 const gamelog = require("./lib/gamelog");
 const starstrings = require("./lib/starstrings");
+const { STATE_DIR } = require("./lib/paths");
 
 const APP_NAME = "Idus SC Deck";
 const APP_VERSION = "1.0";
@@ -23,10 +23,10 @@ const ID = "se.wolfpack.idusscdeck";
 
 const img = (svg) => K.toDataUri(svg);
 const asset = (f) => { try { return "data:image/png;base64," + fs.readFileSync(path.join(__dirname, "assets", f)).toString("base64"); } catch { return ""; } };
-const TOOLBOX_ICON = asset("toolbox-64.png");
-const TOOLBOX_ICON_BIG = asset("toolbox-144.png");
+// The Idus SC Toolbox badge only on Linux, where the TOOL keys run Toolbox (built in on Windows)
+const TOOLBOX_ICON = game.platform === "linux" ? asset("toolbox-64.png") : "";
+const TOOLBOX_ICON_BIG = game.platform === "linux" ? asset("toolbox-144.png") : "";
 
-const STATE_DIR = path.join(process.env.XDG_STATE_HOME || path.join(os.homedir(), ".local/state"), "idus-sc-deck");
 const pad = (n) => String(n).padStart(2, "0");
 const hhmm = (ms) => { const d = new Date(ms); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
 const hmin = (ms) => { const m = Math.max(0, Math.floor(ms / 60000)); return `${Math.floor(m / 60)}:${pad(m % 60)}`; };
@@ -306,11 +306,11 @@ const toolboxKey = {
       return toolboxKey.render(i);
     }
     i.step = 0; i.stepUntil = 0; i.busy = true; toolboxKey.render(i);
-    const r = await game.runToolbox(a.flag, i.settings.channel);
+    const r = await game.runToolbox(a.flag, i.settings.channel, i.settings.prefix);
     i.busy = false;
     if (a.flag === "starstrings") ssLatest = await starstrings.latestRelease();
     toolboxKey.render(i);
-    if (!r.ok) sdk.log(`${APP_NAME}: idus-sc-toolbox --${a.flag} failed: ${r.out}`);
+    sdk.log(`${APP_NAME}: ${a.flag} ${r.ok ? "ok" : "failed"}: ${r.out}`);
     r.ok ? sdk.showOk(i.context) : sdk.showAlert(i.context);
   },
 };

@@ -1,20 +1,25 @@
 // Writes the settings panels (pi/*.html) from one template. Run: node dev/make-pi.cjs
+// Elgato / Windows variant: PI_TARGET=elgato node dev/make-pi.cjs <out dir>  (used by build-elgato.cjs)
 const fs = require("node:fs");
 const path = require("node:path");
-const OUT = path.join(__dirname, "..", "se.wolfpack.idusscdeck.sdPlugin", "pi");
+const ELG = process.env.PI_TARGET === "elgato";
+const OUT = process.argv[2] ? path.resolve(process.argv[2]) : path.join(__dirname, "..", "se.wolfpack.idusscdeck.sdPlugin", "pi");
 const VERSION = "v1.0";
 
 const channel = (def = "LIVE") => `<label>Game channel
   <select data-setting="channel" data-default="${def}">
     <option>LIVE</option><option>PTU</option><option>EPTU</option><option>TECH-PREVIEW</option><option>HOTFIX</option>
   </select></label>`;
-const prefix = `<label>Game folder (Wine prefix) — leave empty to detect it from LUG Helper
+const prefix = ELG
+  ? `<label>Game folder (the one with LIVE, PTU …) — leave empty to find it automatically
+  <input type="text" data-setting="prefix" placeholder="C:\\Program Files\\Roberts Space Industries\\StarCitizen"></label>`
+  : `<label>Game folder (Wine prefix) — leave empty to detect it from LUG Helper
   <input type="text" data-setting="prefix" placeholder="auto"></label>`;
 const tile = (id, label) => `<div class="tile"><span class="tile-label">${label}</span><span class="tile-value mono" id="${id}">—</span></div>`;
 
 // about = extra content for the description card (between the lede and the footer)
 const page = (family, title, lede, body, script = "", about = "") => `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en" data-target="${ELG ? "elgato" : "opendeck"}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${family} · ${title} · Idus SC Deck</title><link rel="stylesheet" href="pi.css"></head>
 <body><div class="layout">
 <aside class="about">
@@ -22,12 +27,13 @@ const page = (family, title, lede, body, script = "", about = "") => `<!doctype 
 <div class="titlerow"><span class="tab">${family}</span><h1>${title}</h1></div></header>
 <p class="lede">${lede}</p>
 ${about}
-<footer data-idus></footer>
+${ELG ? "" : "<footer data-idus></footer>"}
 </aside>
 <main class="settings">
 ${body}
 </main>
 </div>
+${ELG ? '<footer data-idus class="below"></footer>' : ""}
 <script src="pi.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
@@ -234,9 +240,29 @@ document.addEventListener("pi-settings", sync); sync();`),
   logserver: logPage("server"),
   // Settings pages for keys placed before STAT and LOG became one action each (OpenDeck keeps the
   // page path of a placed key): same page, opening on that key's view.
-  version: statPage("version"), funding: statPage("funding"), vram: statPage("vram"),
-  logzone: logPage("zone"), log30k: logPage("30k"),
+  ...(ELG ? {} : { version: statPage("version"), funding: statPage("funding"), vram: statPage("vram"),
+    logzone: logPage("zone"), log30k: logPage("30k") }),
 
+  ...(ELG ? {
+  launch: page("PLAY", "Launch",
+    "Starts the RSI Launcher, which updates itself and starts the game. While the game runs, the key turns green and counts your session time.",
+    `<section class="group"><div class="head">Start with</div>
+<div class="tiles">${tile("via", "Starts via")}${tile("pfx", "Game folder")}</div>
+<label>Custom command — optional, overrides the RSI Launcher
+  <input type="text" data-setting="command" placeholder="e.g. &quot;D:\\Games\\RSI Launcher\\RSI Launcher.exe&quot;"></label>
+${prefix}
+<p class="hint">Without a custom command the key starts <code>RSI Launcher.exe</code> next to the game folder, or from its usual place in Program Files.</p>
+</section>
+<section class="group"><div class="head">Look</div>
+${channel()}
+<label>Own image above the button — optional PNG/SVG path
+  <input type="text" data-setting="image" placeholder="C:\\Users\\you\\Pictures\\emblem.png"></label>
+<p class="hint">Leave empty for the Idus rocket. Use only images you have the right to use.</p>
+</section>`,
+    `PI.onInfo((i) => { $("pfx").textContent = i.prefix || "—"; $("via").textContent = PI.settings.command ? "custom command" : "RSI Launcher"; });
+document.addEventListener("pi-settings", () => PI.send({ cmd: "info" }));`),
+
+  } : {
   launch: page("PLAY", "Launch",
     "Starts Star Citizen. While the game runs, the key turns green and counts your session time.",
     `<section class="group"><div class="head">Start with</div>
@@ -255,6 +281,45 @@ ${channel()}
     `PI.onInfo((i) => { $("pfx").textContent = i.prefix || "—"; $("via").textContent = PI.settings.command ? "custom command" : (i.toolbox ? "Idus SC Toolbox (--launch)" : "LUG sc-launch.sh"); });
 document.addEventListener("pi-settings", () => PI.send({ cmd: "info" }));`),
 
+  }),
+  ...(ELG ? {
+  toolbox: page("TOOL", "SC Tools",
+    "Runs one tool from the key. The tools are built in — nothing else to install.",
+    `<section class="group"><div class="head">Action</div>
+<label>The key runs
+  <select data-setting="tbAction" data-default="kill">
+    <option value="kill">Kill SC + RSI Launcher ⚠</option>
+    <option value="restart">Restart RSI Launcher ⚠</option>
+    <option value="backup">Back up keybinds + cfg</option>
+    <option value="restore">Restore latest backup ⚠</option>
+    <option value="shaders">Clear shader cache</option>
+    <option value="starstrings">Update StarStrings</option>
+  </select></label>
+${channel()}
+<p class="hint">⚠ = takes three presses. The channel matters for shaders and StarStrings.</p>
+<p class="hint">StarStrings shows the game version the installed strings were made for and the install date, e.g. "4.10 · 8 Nov". Green dot = no newer release on GitHub, amber = a newer release exists or the strings are for an older patch.</p>
+${prefix}
+</section>
+<section class="group wide"><div class="head">What the actions do</div>
+<div class="acts">${[
+  ["kill", "Kill SC ⚠", "Force-stops Star Citizen and the RSI Launcher — for a game that hangs."],
+  ["restart", "Restart launcher ⚠", "Stops both, then starts the RSI Launcher again."],
+  ["backup", "Back up", "Copies keybinds and settings (the user folder without shader caches, and USER.cfg of every channel) to Documents\\SC-backups."],
+  ["restore", "Restore ⚠", "Puts back the newest backup. Only when the game is closed, and it saves the current state first."],
+  ["shaders", "Clear shaders", "Deletes the shader caches in %LOCALAPPDATA%\\Star Citizen (game closed). The next start takes longer while they rebuild."],
+  ["starstrings", "StarStrings", "Downloads the newest StarStrings (MrKraken) from GitHub into the channel, keeps the old file as a backup and adds g_language = english to user.cfg."],
+].map(([v, name, text]) => `<div class="act" data-act="${v}" role="button" tabindex="0"><b>${name}</b><span>${text}</span></div>`).join("")}</div>
+<p class="hint">Click a line to pick it.</p>
+</section>`,
+    `const actSel = document.querySelector('select[data-setting="tbAction"]');
+function markAct() { const v = PI.settings.tbAction || actSel.value || "kill"; document.querySelectorAll(".act").forEach((el) => el.classList.toggle("on", el.dataset.act === v)); }
+document.querySelectorAll(".act").forEach((el) => {
+  const pick = () => { actSel.value = el.dataset.act; actSel.dispatchEvent(new Event("change")); };
+  el.addEventListener("click", pick);
+  el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+});
+document.addEventListener("pi-settings", markAct); markAct();`),
+  } : {
   toolbox: page("TOOL", "Toolbox Action",
     "Runs one Idus SC Toolbox action from the key.",
     `<section class="group"><div class="head">Action</div>
@@ -312,6 +377,7 @@ document.addEventListener("pi-settings", markAct); markAct();`,
 <p class="hint"><a href="https://github.com/Idus/idus-sc-toolbox">Idus SC Toolbox on GitHub</a> · <a href="#" onclick="PI.send({ cmd: 'info' }); return false;">check again</a></p>
 <p class="hint">Built on the Star Citizen <b>Linux Users Group</b>: <a href="https://github.com/starcitizen-lug/lug-helper">LUG Helper</a> · <a href="https://github.com/starcitizen-lug/knowledge-base">knowledge base</a> · <a href="https://starcitizen-lug.github.io">wiki</a> · <a href="https://robertsspaceindustries.com/orgs/LUG">LUG on RSI</a></p>
 </div>`),
+  }),
 };
 
 for (const f of fs.readdirSync(OUT)) if (f.endsWith(".html")) fs.unlinkSync(path.join(OUT, f));

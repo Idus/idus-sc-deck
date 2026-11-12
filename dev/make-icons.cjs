@@ -7,10 +7,12 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { chromium } = require("playwright");
 
-const P = path.join(__dirname, "..", "se.wolfpack.idusscdeck.sdPlugin");
+// ICON_OUT=<plugin dir>: only write the action-list icons there (used by build-elgato.cjs)
+const P = process.env.ICON_OUT ? path.resolve(process.env.ICON_OUT) : path.join(__dirname, "..", "se.wolfpack.idusscdeck.sdPlugin");
 const WHITE = process.env.ICON_STYLE === "white";
-const W = (d, scale = 0.8) => WHITE
-  ? `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`
+// White style: Elgato's sizes (action 20 px, category 28 px) and no blue-grey masks
+const W = (d, scale = 0.8, px = scale === 1 ? 28 : 20) => WHITE
+  ? `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" viewBox="0 0 40 40" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${d.replace(/fill="#262b36"/g, 'fill="none"')}</svg>`
   : `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none" stroke-linecap="round" stroke-linejoin="round">` +
     `<rect width="40" height="40" fill="#262b36"/>` +
     `<g transform="translate(20 20) scale(${scale}) translate(-20 -20)" stroke="#ff9a3c" stroke-width="2.75">${d}</g></svg>`;
@@ -26,9 +28,11 @@ const glyphs = {
   launch: rocketPath,
   toolbox: `<path d="M24.5 8.5a6 6 0 0 0-7.6 7.6L8.5 24.5a2.8 2.8 0 0 0 4 4l8.4-8.4a6 6 0 0 0 7.6-7.6l-3.7 3.7-3.4-.6-.6-3.4z"/>`,
 };
+fs.mkdirSync(path.join(P, "imgs/actions"), { recursive: true });
 for (const f of fs.readdirSync(path.join(P, "imgs/actions"))) fs.unlinkSync(path.join(P, "imgs/actions", f));
 for (const [name, d] of Object.entries(glyphs)) fs.writeFileSync(path.join(P, "imgs/actions", `${name}.svg`), W(d));
 fs.writeFileSync(path.join(P, "imgs", "category.svg"), W(rocketPath, 1)); // shown at 20 px: glyph full size
+if (process.env.ICON_OUT) { console.log("list icons →", P); process.exit(0); }
 
 // Default key image (shown for a moment before the plugin draws)
 const keySvg = `<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144"><rect width="144" height="144" fill="#16181d"/><rect x="4.5" y="4.5" width="135" height="135" rx="16" fill="#0f1115" stroke="#2a2f3a" stroke-width="1.5"/><circle cx="20" cy="26" r="3.5" fill="#ff9a3c"/></svg>`;

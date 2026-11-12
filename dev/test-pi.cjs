@@ -8,7 +8,7 @@ const path = require("node:path");
 const { chromium } = require("playwright");
 const { WebSocketServer } = require(process.env.WS_MODULE || "ws");
 
-const PI = path.join(__dirname, "..", "se.wolfpack.idusscdeck.sdPlugin", "pi");
+const PI = process.env.PI_DIR ? path.resolve(process.env.PI_DIR) : path.join(__dirname, "..", "se.wolfpack.idusscdeck.sdPlugin", "pi");
 const out = path.resolve(process.argv[2] || "pi-shots");
 fs.mkdirSync(out, { recursive: true });
 
@@ -30,6 +30,7 @@ const cases = {
   const results = [];
   let port = 28300;
   for (const [name, c] of Object.entries(cases)) {
+    if (!fs.existsSync(path.join(PI, name + ".html"))) continue;
     port++;
     const got = [];
     const wss = new WebSocketServer({ port });
@@ -58,8 +59,10 @@ const cases = {
       const set = got.filter((m) => m.event === "setSettings").pop();
       changed = set ? `${set.context} ${JSON.stringify(set.payload)}` : "NOT SAVED";
     }
-    await page.click("footer a[href*='ko-fi']");
-    const opened = await page.evaluate(() => window.__opened);
+    await page.click("footer a[href*='github']");
+    await page.waitForTimeout(100);
+    // OpenDeck: window.open; Elgato: an openUrl message on the socket
+    const opened = (await page.evaluate(() => window.__opened)).concat(got.filter((m) => m.event === "openUrl").map((m) => [m.payload.url, "openUrl"]));
     await page.evaluate(() => document.fonts.ready);
     const scroll = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
     await page.screenshot({ path: path.join(out, name + ".png"), fullPage: true });

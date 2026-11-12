@@ -2,6 +2,16 @@
 
 All notable changes to Idus SC Deck. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+- **Elgato Stream Deck (Windows) build** from the same code (`node dev/build-elgato.cjs`): Elgato's SDK, key text drawn as outlines so no fonts are needed, white action-list icons, Windows settings pages with a "Star Citizen on Linux? Read more" box.
+- On Windows the TOOL key has the tools built in: kill or restart the RSI Launcher, back up and restore keybinds (Documents\SC-backups), clear shader caches and **update StarStrings** (keeps the old file, adds `g_language = english` to user.cfg).
+- PLAY · Launch on Windows starts the RSI Launcher.
+
+### Changed
+- `lib/game.js` now picks `lib/game-linux.js` or `lib/game-win.js`; state files live in `lib/paths.js`'s folder (%LOCALAPPDATA%\Idus SC Deck on Windows).
+
 ## [1.0] - 2026-11-12
 
 ### Added

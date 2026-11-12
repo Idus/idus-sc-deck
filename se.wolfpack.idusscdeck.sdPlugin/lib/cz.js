@@ -9,7 +9,6 @@
 "use strict";
 
 const fs = require("node:fs");
-const os = require("node:os");
 const path = require("node:path");
 
 const UA = "Idus-SC-Deck (+https://github.com/Idus/idus-sc-deck)";
@@ -19,7 +18,7 @@ const NOMINAL_CLOSE = 120 * 60 * 1000;
 // Values both sources reported on 2026-11-12. Only used until the first successful sync.
 const BUILTIN = { initialOpenTime: Date.parse("2026-10-29T22:01:09.073Z"), openDuration: 3900123, closeDuration: 7200227 };
 
-const STATE_DIR = path.join(process.env.XDG_STATE_HOME || path.join(os.homedir(), ".local/state"), "idus-sc-deck");
+const { STATE_DIR } = require("./paths");
 const STATE_FILE = path.join(STATE_DIR, "cz.json");
 
 function validConfig(c) {
