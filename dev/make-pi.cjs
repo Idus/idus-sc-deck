@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const ELG = process.env.PI_TARGET === "elgato";
 const OUT = process.argv[2] ? path.resolve(process.argv[2]) : path.join(__dirname, "..", "se.wolfpack.idusscdeck.sdPlugin", "pi");
-const VERSION = "v1.1.1";
+const VERSION = "v1.1.2";
 
 const channel = (def = "LIVE") => `<label>Game channel
   <select data-setting="channel" data-default="${def}">
@@ -298,6 +298,10 @@ document.addEventListener("pi-settings", () => PI.send({ cmd: "info" }));`),
 ${channel()}
 <p class="hint">⚠ = takes three presses. The channel matters for shaders and StarStrings.</p>
 <p class="hint">StarStrings shows the game version the installed strings were made for and the install date, e.g. "4.10 · 8 Nov". Green dot = no newer release on GitHub, amber = a newer release exists or the strings are for an older patch.</p>
+<div class="sub" data-ss hidden>
+<p class="hint">StarStrings also needs this line in <code>user.cfg</code> in the channel folder (create the file if it is missing). The key never edits it.</p>
+<div class="cmd"><pre id="ssLine">g_language = english</pre><button class="btn" type="button" data-copy-pre="ssLine">Copy</button></div>
+</div>
 ${prefix}
 </section>
 <section class="group wide"><div class="head">What the actions do</div>
@@ -307,12 +311,13 @@ ${prefix}
   ["backup", "Back up", "Copies keybinds and settings (the user folder without shader caches, and USER.cfg of every channel) to Documents\\SC-backups — or to %LOCALAPPDATA%\\Idus SC Deck\\SC-backups if Documents cannot be written (OneDrive, Controlled folder access)."],
   ["restore", "Restore ⚠", "Puts back the newest backup. Only when the game is closed, and it saves the current state first."],
   ["shaders", "Clear shaders", "Deletes the shader caches in %LOCALAPPDATA%\\Star Citizen (game closed). The next start takes longer while they rebuild."],
-  ["starstrings", "StarStrings", "Downloads the newest StarStrings (MrKraken) from GitHub into the channel, keeps the old file as a backup and adds g_language = english to user.cfg. Not installed yet? The first press installs it, then opens its guide and the game folder so you can check."],
+  ["starstrings", "StarStrings", "Downloads the newest StarStrings (MrKraken) from GitHub into the channel and keeps the old file as a backup. It never edits user.cfg: until it has the line g_language = english the key says needs user.cfg, and a press opens the guide and the game folder."],
 ].map(([v, name, text]) => `<div class="act" data-act="${v}" role="button" tabindex="0"><b>${name}</b><span>${text}</span></div>`).join("")}</div>
 <p class="hint">Click a line to pick it.</p>
 </section>`,
     `const actSel = document.querySelector('select[data-setting="tbAction"]');
-function markAct() { const v = PI.settings.tbAction || actSel.value || "kill"; document.querySelectorAll(".act").forEach((el) => el.classList.toggle("on", el.dataset.act === v)); }
+function markAct() { const v = PI.settings.tbAction || actSel.value || "kill"; document.querySelectorAll(".act").forEach((el) => el.classList.toggle("on", el.dataset.act === v));
+  document.querySelectorAll("[data-ss]").forEach((el) => { el.hidden = v !== "starstrings"; }); }
 document.querySelectorAll(".act").forEach((el) => {
   const pick = () => { actSel.value = el.dataset.act; actSel.dispatchEvent(new Event("change")); };
   el.addEventListener("click", pick);
@@ -345,6 +350,10 @@ d=$(mktemp -d) &amp;&amp; cd "$d" &amp;&amp; for f in idus-sc-toolbox.py install
 ${channel()}
 <p class="hint">⚠ = takes three presses. The channel matters for shaders and StarStrings.</p>
 <p class="hint">StarStrings shows the game version the installed strings were made for and the install date, e.g. "4.10 · 8 Nov". Green dot = no newer release on GitHub, amber = a newer release exists or the strings are for an older patch.</p>
+<div class="sub" data-ss hidden>
+<p class="hint">StarStrings also needs this line in <code>user.cfg</code> in the channel folder (create the file if it is missing). The key never edits it.</p>
+<div class="cmd"><pre id="ssLine">g_language = english</pre><button class="btn" type="button" data-copy-pre="ssLine">Copy</button></div>
+</div>
 </section>
 <section class="group wide"><div class="head">What the actions do</div>
 <div class="acts">${[
@@ -354,7 +363,7 @@ ${channel()}
   ["backup", "Back up", "Saves keybinds and settings (the user folder and USER.cfg of every channel) plus sc-launch.sh to a dated backup."],
   ["restore", "Restore ⚠", "Puts back the newest backup. Only when the game is closed, and it takes a safety copy of the current state first."],
   ["shaders", "Clear shaders", "Deletes the shader cache for the channel (game closed). The next launch takes longer while it rebuilds."],
-  ["starstrings", "StarStrings", "Built in — works without Idus SC Toolbox. Downloads the newest StarStrings (MrKraken) into the channel, keeps the old file and adds g_language = english to user.cfg. Not installed yet? The first press installs it, then opens its guide and the game folder."],
+  ["starstrings", "StarStrings", "Built in — works without Idus SC Toolbox. Downloads the newest StarStrings (MrKraken) into the channel and keeps the old file. It never edits user.cfg: until it has the line g_language = english the key says needs user.cfg, and a press opens the guide and the game folder."],
   ["fixwindows", "Fix windows", "Centres the RSI Launcher and moves Star Citizen to the main screen (KDE)."],
 ].map(([v, name, text]) => `<div class="act" data-act="${v}" role="button" tabindex="0"><b>${name}</b><span>${text}</span></div>`).join("")}</div>
 <p class="hint">Click a line to pick it.</p>
@@ -365,7 +374,8 @@ ${channel()}
   $("tbPill").className = "pill " + (i.toolbox ? "ok" : "");
 });
 const actSel = document.querySelector('select[data-setting="tbAction"]');
-function markAct() { const v = PI.settings.tbAction || actSel.value || "kill"; document.querySelectorAll(".act").forEach((el) => el.classList.toggle("on", el.dataset.act === v)); }
+function markAct() { const v = PI.settings.tbAction || actSel.value || "kill"; document.querySelectorAll(".act").forEach((el) => el.classList.toggle("on", el.dataset.act === v));
+  document.querySelectorAll("[data-ss]").forEach((el) => { el.hidden = v !== "starstrings"; }); }
 document.querySelectorAll(".act").forEach((el) => {
   const pick = () => { actSel.value = el.dataset.act; actSel.dispatchEvent(new Event("change")); };
   el.addEventListener("click", pick);

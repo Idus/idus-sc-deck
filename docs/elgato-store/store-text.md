@@ -21,7 +21,7 @@ CZ – the Contested Zone executive hangar on one key: open or closed, countdown
 STAT – RSI server status, your installed game version against the newest release notes, crowdfunding total and GPU memory.
 LOG – live from your own Game.log: the region and shard you landed on, Armistice zone in or out, and 30K disconnects this session. Read on your PC only.
 PLAY – starts the RSI Launcher and shows your session time.
-TOOL – built-in tools: update StarStrings with one press (keeps your old file and adds the user.cfg line), back up and restore keybinds, clear shader caches, stop a hung game.
+TOOL – built-in tools: update StarStrings with one press (keeps your old file; never edits your user.cfg), back up and restore keybinds, clear shader caches, stop a hung game.
 
 Requirements: Windows 10 or 11, Stream Deck 7.1 or newer, Star Citizen installed with the RSI Launcher. The VRAM view needs an NVIDIA card.
 
@@ -34,7 +34,7 @@ Optional last line (Elgato's guidelines say nothing about referral codes — lea
 New to Star Citizen? Enlist with referral code STAR-2GDF-FDKH for 5,000 free aUEC.
 ```
 
-## Release notes (version 1.1.0.0)
+## Release notes (version 1.1.2.0)
 
 ```
 First release on the Elgato Marketplace: six actions — TIME server clocks, CZ exec hangar timer, STAT (server status, game version, funding, VRAM), LOG (server/shard, Armistice zone, 30K from Game.log), PLAY launcher key and TOOL with built-in StarStrings updates, keybind backup/restore, shader cleanup and kill/restart. Key text is drawn in the plugin, so no fonts need installing.

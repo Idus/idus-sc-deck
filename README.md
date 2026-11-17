@@ -6,7 +6,7 @@ Star Citizen keys for **[OpenDeck](https://github.com/nekename/OpenDeck)** (Stre
 
 > [!TIP]
 > **StarStrings on one key — built in, on Linux and Windows.**
-> The **TOOL · StarStrings** key shows which game version your [StarStrings](https://github.com/MrKraken/StarStrings) were made for and when you installed them, and turns amber as soon as a newer release is out. One press downloads the newest release, keeps your old `global.ini`, installs the new one and adds the `user.cfg` line — no browser, no unzipping, no copying into the game folder. Not installed yet? The key says *tap to install*.
+> The **TOOL · StarStrings** key shows which game version your [StarStrings](https://github.com/MrKraken/StarStrings) were made for and when you installed them, and turns amber as soon as a newer release is out. One press downloads the newest release, keeps your old `global.ini` and installs the new one — no browser, no unzipping, no copying into the game folder. Not installed yet? The key says *tap to install*. Your `user.cfg` is never edited: if it still lacks `g_language = english`, the key says *needs user.cfg* and shows you where to add it.
 >
 > ![The StarStrings key: up to date, new release out, one press to update](docs/starstrings.png)
 >
@@ -55,7 +55,7 @@ On Windows the **TOOL · SC Tools** key does the work itself:
 - **Kill SC / Restart launcher** — stops Star Citizen and the RSI Launcher (and starts the launcher again).
 - **Back up / Restore** — keybinds and settings (`user` folder without shader caches, and `USER.cfg`) to `Documents\SC-backups`, or `%LOCALAPPDATA%\Idus SC Deck\SC-backups` if Documents can't be written. Restore only with the game closed, after a safety copy.
 - **Clear shaders** — the caches in `%LOCALAPPDATA%\Star Citizen`.
-- **StarStrings** — downloads the newest release, keeps the old `global.ini`, adds `g_language = english` to `user.cfg`. Not installed yet? The key says *tap to install*, and the first install opens the StarStrings guide and the game folder.
+- **StarStrings** — downloads the newest release and keeps the old `global.ini`. Not installed yet? The key says *tap to install*. It never edits `user.cfg`: until that has `g_language = english` the key says *needs user.cfg*, and a press opens the StarStrings guide and the game folder.
 
 The Windows build is made from the same code: `node dev/build-elgato.cjs` (see `dev/README.md`).
 
@@ -75,7 +75,7 @@ The Windows build is made from the same code: `node dev/build-elgato.cjs` (see `
 
 The game replaces `Game.log` at every start; the keys follow the new file automatically and count from zero.
 
-**TOOL · StarStrings** (built in, no Toolbox needed) shows the game version the installed StarStrings were made for and the install date (e.g. "4.10 · 8 Nov") — StarStrings has no release number inside its file. A press installs the newest release, keeps the old `global.ini` as `global.ini.BAK-<date>` and adds `g_language = english` to `user.cfg` if it is missing; the first install also opens the StarStrings guide and the game folder. Green dot = no newer release on GitHub; amber = a newer release exists or the strings are for an older patch. The newest release is checked at most every 6 hours.
+**TOOL · StarStrings** (built in, no Toolbox needed) shows the game version the installed StarStrings were made for and the install date (e.g. "4.10 · 8 Nov") — StarStrings has no release number inside its file. A press installs the newest release, keeps the old `global.ini` as `global.ini.BAK-<date>`. StarStrings also needs the line `g_language = english` in the channel's `user.cfg` (create the file if it is missing) — the plugin never edits that file itself: until the line is there the key says *needs user.cfg*, and a press opens the StarStrings guide and the game folder. Green dot = no newer release on GitHub; amber = a newer release exists or the strings are for an older patch. The newest release is checked at most every 6 hours.
 
 **PLAY · Launch** starts the game the best way it can find: a custom command if you set one; otherwise `idus-sc-toolbox --launch` if Idus SC Toolbox is installed (it checks for a newer RSI Launcher first); otherwise LUG Helper's `sc-launch.sh`. You can put your own image above the button — only use images you have the right to use.
 

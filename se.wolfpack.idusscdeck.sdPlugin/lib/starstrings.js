@@ -98,9 +98,28 @@ async function download(url, accept) {
 const stamp = () => { const d = new Date(), p = (n) => String(n).padStart(2, "0");
   return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`; };
 
-// Downloads the newest StarStrings, keeps the old global.ini as global.ini.BAK-<date>, installs the
-// new one and makes sure user.cfg in the channel folder says g_language = english (added, never
-// overwritten). A pristine copy is kept in stateDir. -> { ok, out }
+// user.cfg in the channel folder must say g_language = english for StarStrings to show. The plugin
+// only READS it — the player adds the line (the key and the settings panel show how).
+// -> { state: "ok" | "missing" | "other", lang, file }
+const cfgCache = new Map();
+function cfgState(channelDir) {
+  const file = channelDir && (ifind(channelDir, "user.cfg") || path.join(channelDir, "user.cfg"));
+  if (!file) return { state: "missing", lang: "", file: "" };
+  let st = null;
+  try { st = fs.statSync(file); } catch { return { state: "missing", lang: "", file }; }
+  const c = cfgCache.get(file);
+  if (c && c.mtimeMs === st.mtimeMs) return c.info;
+  let text = "";
+  try { text = fs.readFileSync(file, "utf8"); } catch { /* unreadable */ }
+  const lang = (text.match(/^\s*g_language\s*=\s*(\S+)/im) || [])[1] || "";
+  const info = { state: !lang ? "missing" : lang.toLowerCase() === "english" ? "ok" : "other", lang, file };
+  cfgCache.set(file, { mtimeMs: st.mtimeMs, info });
+  return info;
+}
+
+// Downloads the newest StarStrings, keeps the old global.ini as global.ini.BAK-<date> and installs
+// the new one. Never touches user.cfg (only reports what it says). A pristine copy is kept in
+// stateDir. -> { ok, out, cfg }
 async function update(channelDir, { stateDir } = {}) {
   const out = [];
   if (!channelDir || !fs.existsSync(channelDir)) return { ok: false, short: "no game folder", out: "game folder not found — set it in the key's settings" };
@@ -131,20 +150,16 @@ async function update(channelDir, { stateDir } = {}) {
   } catch (e) { return { ok: false, short: "cannot write", out: `cannot write ${target}: ${e.message}` }; }
   out.push(`installed ${target} (${Math.round(data.length / 1024)} KB)`);
 
-  const cfg = ifind(channelDir, "user.cfg") || path.join(channelDir, "user.cfg");
-  try {
-    const text = fs.existsSync(cfg) ? fs.readFileSync(cfg, "utf8") : "";
-    const lang = (text.match(/^\s*g_language\s*=\s*(\S+)/im) || [])[1];
-    if (!lang) { fs.writeFileSync(cfg, (text && !text.endsWith("\n") ? text + "\n" : text) + "g_language = english\n"); out.push(`${path.basename(cfg)}: added g_language = english`); }
-    else if (lang.toLowerCase() !== "english") out.push(`${path.basename(cfg)} says g_language = ${lang} — StarStrings needs english`);
-  } catch (e) { out.push(`could not update user.cfg: ${e.message}`); }
+  const cfg = cfgState(channelDir);
+  if (cfg.state === "missing") out.push("user.cfg has no g_language = english yet — add the line yourself (the key never edits user.cfg)");
+  else if (cfg.state === "other") out.push(`user.cfg says g_language = ${cfg.lang} — StarStrings needs english`);
 
   if (stateDir) {
     try { fs.mkdirSync(stateDir, { recursive: true }); fs.writeFileSync(path.join(stateDir, `starstrings-${path.basename(channelDir)}.ini`), data); } catch { /* optional */ }
   }
   fileCache.delete(target);
   latest.at = 0; // let the key re-check GitHub
-  return { ok: true, out: out.join("\n") };
+  return { ok: true, out: out.join("\n"), cfg: cfg.state };
 }
 
-module.exports = { installed, latestRelease, update, globalIniFromZip };
+module.exports = { installed, cfgState, latestRelease, update, globalIniFromZip };

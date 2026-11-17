@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Idus SC Deck installer  ·  v1.1.1  ·  build 2026-11-12
+# Idus SC Deck installer  ·  v1.1.2  ·  build 2026-11-17
 # Installs the Idus SC Deck plugin into OpenDeck (native or Flatpak) for the current user.
 #   bash install-idus-sc-deck.sh             install / update
 #   bash install-idus-sc-deck.sh --uninstall remove the plugin (your key layout stays in OpenDeck)

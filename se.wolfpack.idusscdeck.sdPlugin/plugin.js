@@ -1,4 +1,4 @@
-// Idus SC Deck  ·  v1.1.1  ·  build 2026-11-12
+// Idus SC Deck  ·  v1.1.2  ·  build 2026-11-17
 // Star Citizen keys for OpenDeck (Stream Deck on Linux) in the Idus look.
 // Families: TIME · CZ · STAT · LOG · PLAY · TOOL — the orange tab on every key.
 // Made by Idus · https://github.com/Idus/idus-sc-deck · MIT License
@@ -17,7 +17,7 @@ const starstrings = require("./lib/starstrings");
 const { STATE_DIR } = require("./lib/paths");
 
 const APP_NAME = "Idus SC Deck";
-const APP_VERSION = "1.1.1";
+const APP_VERSION = "1.1.2";
 const BUILD = "2026-11-12";
 const ID = "se.wolfpack.idusscdeck";
 
@@ -277,6 +277,8 @@ function starStringsSub(i) {
   const info = starstrings.installed(game.channelDir(ch, i.settings.prefix));
   // Windows installs it from the key; on Linux Idus SC Toolbox does it the same way
   if (!info.installed) return { sub: "tap to install", subColor: K.C.warn };
+  // The plugin never edits user.cfg: until it says g_language = english, the key asks for it
+  if (starstrings.cfgState(game.channelDir(ch, i.settings.prefix)).state !== "ok") return { sub: "needs user.cfg", subColor: K.C.warn };
   const d = new Date(info.mtimeMs);
   const sub = `${info.target || "?"} · ${d.getDate()} ${MON[d.getMonth()]}`;
   const b = game.gameBuild(ch, i.settings.prefix);
@@ -311,16 +313,24 @@ const toolboxKey = {
       i.step = step + 1; i.stepUntil = Date.now() + 3000;
       return toolboxKey.render(i);
     }
-    i.step = 0; i.stepUntil = 0; i.failUntil = 0; i.busy = true; toolboxKey.render(i);
     const ssDir = a.flag === "starstrings" ? game.channelDir(i.settings.channel || "LIVE", i.settings.prefix) : null;
     const firstInstall = !!ssDir && !starstrings.installed(ssDir).installed;
+    // StarStrings installed but user.cfg lacks g_language = english: show how (guide + the folder) —
+    // the player adds the line; the plugin never edits user.cfg
+    if (ssDir && !firstInstall && starstrings.cfgState(ssDir).state !== "ok") {
+      sdk.openUrl(STARSTRINGS_GUIDE);
+      if (game.openFolder) game.openFolder(ssDir);
+      sdk.log(`${APP_NAME}: starstrings: user.cfg needs g_language = english — opened the guide and ${ssDir}`);
+      return;
+    }
+    i.step = 0; i.stepUntil = 0; i.failUntil = 0; i.busy = true; toolboxKey.render(i);
     const r = builtIn(a)
       ? await starstrings.update(ssDir, { stateDir: STATE_DIR })
       : await game.runToolbox(a.flag, i.settings.channel, i.settings.prefix);
     i.busy = false;
     if (!r.ok) { i.failMsg = r.short || "failed · see log"; i.failUntil = Date.now() + 8000; }
-    // First StarStrings install: show its guide and the folder with user.cfg and data/Localization
-    if (r.ok && firstInstall && game.openFolder) { sdk.openUrl(STARSTRINGS_GUIDE); game.openFolder(ssDir); }
+    // First StarStrings install and user.cfg still lacks the line: show the guide and the folder
+    if (r.ok && firstInstall && r.cfg !== "ok") { sdk.openUrl(STARSTRINGS_GUIDE); if (game.openFolder) game.openFolder(ssDir); }
     if (a.flag === "starstrings") ssLatest = await starstrings.latestRelease();
     toolboxKey.render(i);
     sdk.log(`${APP_NAME}: ${a.flag} ${r.ok ? "ok" : "failed"}: ${r.out}`);

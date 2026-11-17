@@ -2,6 +2,12 @@
 
 All notable changes to Idus SC Deck. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.2] - 2026-11-17
+
+### Changed
+- **StarStrings never edits `user.cfg` any more** — on Linux and Windows. The key only reads it: until the channel's `user.cfg` has `g_language = english`, it says *needs user.cfg*, and a press opens the StarStrings guide and the game folder so you can add the line yourself. The settings panel shows the line with a Copy button. Downloading and updating `global.ini` (with a backup of the old file) works as before.
+- New app icon in the style of the other Idus apps: teal glow, reticle and a small six-key deck.
+
 ## [1.1.1] - 2026-11-12
 
 ### Changed

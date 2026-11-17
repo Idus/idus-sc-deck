@@ -3,7 +3,7 @@
 <title>TOOL · Toolbox Action · Idus SC Deck</title><link rel="stylesheet" href="pi.css"></head>
 <body><div class="layout">
 <aside class="about">
-<header><span class="eyebrow">Idus SC Deck · v1.1.1</span>
+<header><span class="eyebrow">Idus SC Deck · v1.1.2</span>
 <div class="titlerow"><span class="tab">TOOL</span><h1>Toolbox Action</h1></div></header>
 <p class="lede">Runs one Idus SC Toolbox action from the key.</p>
 <div class="tbbox">
@@ -41,9 +41,13 @@ d=$(mktemp -d) &amp;&amp; cd "$d" &amp;&amp; for f in idus-sc-toolbox.py install
   </select></label>
 <p class="hint">⚠ = takes three presses. The channel matters for shaders and StarStrings.</p>
 <p class="hint">StarStrings shows the game version the installed strings were made for and the install date, e.g. "4.10 · 8 Nov". Green dot = no newer release on GitHub, amber = a newer release exists or the strings are for an older patch.</p>
+<div class="sub" data-ss hidden>
+<p class="hint">StarStrings also needs this line in <code>user.cfg</code> in the channel folder (create the file if it is missing). The key never edits it.</p>
+<div class="cmd"><pre id="ssLine">g_language = english</pre><button class="btn" type="button" data-copy-pre="ssLine">Copy</button></div>
+</div>
 </section>
 <section class="group wide"><div class="head">What the actions do</div>
-<div class="acts"><div class="act" data-act="kill" role="button" tabindex="0"><b>Kill SC ⚠</b><span>Force-stops Star Citizen, the RSI Launcher and Wine (wineserver) in the game folder — for a game that hangs.</span></div><div class="act" data-act="restart" role="button" tabindex="0"><b>Restart launcher ⚠</b><span>Stops everything, then starts the RSI Launcher again with LUG's sc-launch.sh.</span></div><div class="act" data-act="patch" role="button" tabindex="0"><b>Patch / verify ⚠</b><span>Like restart, but on the PATCH runner — for game updates and Verify. Needs patch mode in sc-launch.sh (see the Toolbox README).</span></div><div class="act" data-act="backup" role="button" tabindex="0"><b>Back up</b><span>Saves keybinds and settings (the user folder and USER.cfg of every channel) plus sc-launch.sh to a dated backup.</span></div><div class="act" data-act="restore" role="button" tabindex="0"><b>Restore ⚠</b><span>Puts back the newest backup. Only when the game is closed, and it takes a safety copy of the current state first.</span></div><div class="act" data-act="shaders" role="button" tabindex="0"><b>Clear shaders</b><span>Deletes the shader cache for the channel (game closed). The next launch takes longer while it rebuilds.</span></div><div class="act" data-act="starstrings" role="button" tabindex="0"><b>StarStrings</b><span>Built in — works without Idus SC Toolbox. Downloads the newest StarStrings (MrKraken) into the channel, keeps the old file and adds g_language = english to user.cfg. Not installed yet? The first press installs it, then opens its guide and the game folder.</span></div><div class="act" data-act="fixwindows" role="button" tabindex="0"><b>Fix windows</b><span>Centres the RSI Launcher and moves Star Citizen to the main screen (KDE).</span></div></div>
+<div class="acts"><div class="act" data-act="kill" role="button" tabindex="0"><b>Kill SC ⚠</b><span>Force-stops Star Citizen, the RSI Launcher and Wine (wineserver) in the game folder — for a game that hangs.</span></div><div class="act" data-act="restart" role="button" tabindex="0"><b>Restart launcher ⚠</b><span>Stops everything, then starts the RSI Launcher again with LUG's sc-launch.sh.</span></div><div class="act" data-act="patch" role="button" tabindex="0"><b>Patch / verify ⚠</b><span>Like restart, but on the PATCH runner — for game updates and Verify. Needs patch mode in sc-launch.sh (see the Toolbox README).</span></div><div class="act" data-act="backup" role="button" tabindex="0"><b>Back up</b><span>Saves keybinds and settings (the user folder and USER.cfg of every channel) plus sc-launch.sh to a dated backup.</span></div><div class="act" data-act="restore" role="button" tabindex="0"><b>Restore ⚠</b><span>Puts back the newest backup. Only when the game is closed, and it takes a safety copy of the current state first.</span></div><div class="act" data-act="shaders" role="button" tabindex="0"><b>Clear shaders</b><span>Deletes the shader cache for the channel (game closed). The next launch takes longer while it rebuilds.</span></div><div class="act" data-act="starstrings" role="button" tabindex="0"><b>StarStrings</b><span>Built in — works without Idus SC Toolbox. Downloads the newest StarStrings (MrKraken) into the channel and keeps the old file. It never edits user.cfg: until it has the line g_language = english the key says needs user.cfg, and a press opens the guide and the game folder.</span></div><div class="act" data-act="fixwindows" role="button" tabindex="0"><b>Fix windows</b><span>Centres the RSI Launcher and moves Star Citizen to the main screen (KDE).</span></div></div>
 <p class="hint">Click a line to pick it.</p>
 </section>
 </main>
@@ -59,7 +63,8 @@ PI.onInfo((i) => {
   $("tbPill").className = "pill " + (i.toolbox ? "ok" : "");
 });
 const actSel = document.querySelector('select[data-setting="tbAction"]');
-function markAct() { const v = PI.settings.tbAction || actSel.value || "kill"; document.querySelectorAll(".act").forEach((el) => el.classList.toggle("on", el.dataset.act === v)); }
+function markAct() { const v = PI.settings.tbAction || actSel.value || "kill"; document.querySelectorAll(".act").forEach((el) => el.classList.toggle("on", el.dataset.act === v));
+  document.querySelectorAll("[data-ss]").forEach((el) => { el.hidden = v !== "starstrings"; }); }
 document.querySelectorAll(".act").forEach((el) => {
   const pick = () => { actSel.value = el.dataset.act; actSel.dispatchEvent(new Event("change")); };
   el.addEventListener("click", pick);
