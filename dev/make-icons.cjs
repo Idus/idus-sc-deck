@@ -37,13 +37,56 @@ if (process.env.ICON_OUT) { console.log("list icons →", P); process.exit(0); }
 const keySvg = `<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144"><rect width="144" height="144" fill="#16181d"/><rect x="4.5" y="4.5" width="135" height="135" rx="16" fill="#0f1115" stroke="#2a2f3a" stroke-width="1.5"/><circle cx="20" cy="26" r="3.5" fill="#ff9a3c"/></svg>`;
 fs.writeFileSync(path.join(P, "imgs", "key.svg"), keySvg);
 
-// Plugin icon: IDUS / rocket / SC DECK, like the SC Toolbox icon layout
+// Plugin / app icon in the style of the other Idus app icons (GitHub Updater, SC Toolbox, Elgato
+// Light, Hamster Wheel): glossy rounded frame, dark teal glow, faint reticle and code lines, teal
+// haze at the bottom — with a small deck of six keys in the middle, the rocket on the centre key.
+const deckKey = (x, y, inner, glow = false) =>
+  `<rect x="${x}" y="${y}" width="74" height="74" rx="15" fill="#0f1115" stroke="${glow ? "#ff9a3c" : "#2a2f3a"}" stroke-width="${glow ? 2.5 : 2}"/>` +
+  `<g transform="translate(${x + 37} ${y + 37}) scale(1.45) translate(-20 -20)">${inner}</g>`;
+const orange = (d) => `<g fill="none" stroke="#ff9a3c" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${d}</g>`;
+const rocketBig = `<g transform="translate(20 20) rotate(45) scale(0.74)"><path d="M-9 4 L-18 19 L-9 16 Z M9 4 L18 19 L9 16 Z" fill="#9fb4d4"/><path d="M-5 16 L0 28 L5 16 Z" fill="#ffd9a0"/><path d="M0 -32 C10 -21 11 -6 9 16 L-9 16 C-11 -6 -10 -21 0 -32 Z" fill="#e8eaed"/><circle cx="0" cy="-11" r="4.5" fill="#0f1115"/></g>`;
+const CODE_L = ["shard[euw1b_420]", "if (zone) lock();", "cz.open = true", "  utc.tick()", "30k = 0;"];
+const CODE_R = ["// o7", "status: ok", "  launch()", "brb.never()", "{ SC DECK }"];
+const DX = 256 - (3 * 74 + 2 * 14) / 2, DY = 286 - (2 * 74 + 14) / 2; // 3 × 2 keys, centred
 const big = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-<rect x="16" y="16" width="480" height="480" rx="96" fill="#0f1115" stroke="#2a2f3a" stroke-width="6"/>
-<text x="256" y="138" text-anchor="middle" font-family="Saira" font-weight="700" font-size="104" letter-spacing="4" fill="#ff9a3c">IDUS</text>
-<g transform="translate(256 262) rotate(45) scale(3.1)"><path d="M-9 4 L-18 19 L-9 16 Z M9 4 L18 19 L9 16 Z" fill="#9fb4d4"/><path d="M-5 16 L0 28 L5 16 Z" fill="#ffd9a0"/><path d="M0 -32 C10 -21 11 -6 9 16 L-9 16 C-11 -6 -10 -21 0 -32 Z" fill="#e8eaed"/><circle cx="0" cy="-11" r="4.5" fill="#0f1115"/></g>
-<g fill="#ff9a3c"><circle cx="150" cy="300" r="7"/><circle cx="362" cy="300" r="7" fill="#46d160"/></g>
-<text x="256" y="452" text-anchor="middle" font-family="Saira" font-weight="700" font-size="72" letter-spacing="6" fill="#ff9a3c">SC DECK</text></svg>`;
+<defs>
+  <clipPath id="sq"><rect x="14" y="14" width="484" height="484" rx="118"/></clipPath>
+  <radialGradient id="bg" cx="0.5" cy="0.54" r="0.62"><stop offset="0" stop-color="#134846"/><stop offset="0.42" stop-color="#0b2427"/><stop offset="1" stop-color="#04080a"/></radialGradient>
+  <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#2ad1b2" stop-opacity="0.32"/><stop offset="1" stop-color="#2ad1b2" stop-opacity="0"/></radialGradient>
+  <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f6f9"/><stop offset="0.55" stop-color="#c3c9d1"/><stop offset="1" stop-color="#7d8590"/></linearGradient>
+  <filter id="haze" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="26"/></filter>
+  <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.2"/></filter>
+  <filter id="txt" x="-20%" y="-40%" width="140%" height="180%"><feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="#ff9a3c" flood-opacity="0.35"/></filter>
+</defs>
+<g clip-path="url(#sq)">
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <ellipse cx="256" cy="540" rx="300" ry="120" fill="#27c2a8" opacity="0.5" filter="url(#haze)"/>
+  <ellipse cx="256" cy="508" rx="190" ry="10" fill="#7ff0dc" opacity="0.35" filter="url(#haze)"/>
+  <g stroke="#57d6c4" fill="none" stroke-width="1.4">
+    <circle cx="256" cy="286" r="172" opacity="0.16"/><circle cx="256" cy="286" r="128" opacity="0.1" stroke-dasharray="3 7"/>
+    <path d="M28 286 H484 M256 150 V430" opacity="0.14"/>
+    <path d="M84 286 v-8 M428 286 v-8 M256 114 h8 M256 458 h8" opacity="0.3"/>
+    <path d="M40 200 h44 l18 18 h30 M472 200 h-44 l-18 18 h-30 M40 372 h52 l14 -14 h26 M472 372 h-52 l-14 -14 h-26" opacity="0.2"/>
+  </g>
+  <g fill="#57d6c4"><rect x="62" y="282" width="8" height="8" opacity="0.45"/><rect x="442" y="282" width="8" height="8" opacity="0.45"/></g>
+  <g font-family="JetBrains Mono" font-size="12.5" fill="#7fe0d0" opacity="0.2" filter="url(#soft)">
+    ${CODE_L.map((t, i) => `<text x="38" y="${158 + i * 18}">${t}</text>`).join("")}
+    ${CODE_R.map((t, i) => `<text x="474" y="${392 + i * 18}" text-anchor="end">${t}</text>`).join("")}
+  </g>
+  <circle cx="256" cy="286" r="175" fill="url(#glow)"/>
+  <rect x="${DX - 16}" y="${DY - 16}" width="${3 * 74 + 2 * 14 + 32}" height="${2 * 74 + 14 + 32}" rx="26" fill="#1e222b" stroke="#3a4150" stroke-width="2.5"/>
+  ${deckKey(DX, DY, orange(glyphs.clock))}
+  ${deckKey(DX + 88, DY, rocketBig, true)}
+  ${deckKey(DX + 176, DY, orange(glyphs.servers))}
+  ${deckKey(DX, DY + 88, orange(glyphs.cz))}
+  ${deckKey(DX + 88, DY + 88, orange(glyphs.logserver).replace('fill="#262b36"', 'fill="#0f1115"'))}
+  ${deckKey(DX + 176, DY + 88, orange(glyphs.toolbox))}
+  <text x="256" y="120" text-anchor="middle" font-family="Saira" font-weight="700" font-size="96" letter-spacing="3" fill="#ff9a3c" filter="url(#txt)">IDUS</text>
+  <text x="256" y="458" text-anchor="middle" font-family="IBM Plex Sans" font-weight="700" font-size="56" letter-spacing="2" fill="#ff9a3c" filter="url(#txt)">SC DECK</text>
+</g>
+<rect x="18.5" y="18.5" width="475" height="475" rx="114" fill="none" stroke="#0a1012" stroke-width="3"/>
+<rect x="14" y="14" width="484" height="484" rx="118" fill="none" stroke="url(#rim)" stroke-width="9"/>
+</svg>`;
 fs.writeFileSync(path.join(__dirname, "..", "idus-sc-deck.svg"), big);
 
 (async () => {
